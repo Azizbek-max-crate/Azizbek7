@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearChatBtn = document.getElementById('clearChatBtn');
   const langUzBtn = document.getElementById('langUzBtn');
   const langEnBtn = document.getElementById('langEnBtn');
+  const langRuBtn = document.getElementById('langRuBtn');
 
   // Application State
   let currentLanguage = 'uz-UZ';
@@ -184,13 +185,24 @@ document.addEventListener('DOMContentLoaded', () => {
     window.speechSynthesis.onvoiceschanged = populateVoices;
   }
 
-  function getBestVoiceForUzbek() {
+  function getBestVoiceForLang() {
     if (!cachedVoices.length && window.speechSynthesis) {
       cachedVoices = window.speechSynthesis.getVoices();
     }
+    if (currentLanguage === 'ru-RU') {
+      return cachedVoices.find(v => v.lang.toLowerCase().startsWith('ru')) ||
+             cachedVoices.find(v => v.lang.toLowerCase().includes('ru')) ||
+             null;
+    }
+    if (currentLanguage === 'en-US') {
+      return cachedVoices.find(v => v.lang.toLowerCase().startsWith('en-us')) ||
+             cachedVoices.find(v => v.lang.toLowerCase().startsWith('en')) ||
+             null;
+    }
+    // uz-UZ — o'zbek ovozi bo'lmasa ingliz ovozi (ruscha emas!)
     return cachedVoices.find(v => v.lang.toLowerCase().includes('uz')) ||
-           cachedVoices.find(v => v.lang.toLowerCase().includes('tr')) ||
-           cachedVoices.find(v => v.lang.toLowerCase().includes('ru')) ||
+           cachedVoices.find(v => v.lang.toLowerCase().startsWith('en-us')) ||
+           cachedVoices.find(v => v.lang.toLowerCase().startsWith('en')) ||
            null;
   }
 
@@ -210,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cleanText.length > 350) cleanText = cleanText.substring(0, 350) + "...";
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      const voice = getBestVoiceForUzbek();
+      const voice = getBestVoiceForLang();
 
       if (voice) {
         utterance.voice = voice;
@@ -1067,6 +1079,25 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
   });
 
-  if (langUzBtn) langUzBtn.addEventListener('click', () => { currentLanguage = 'uz-UZ'; langUzBtn.classList.add('active'); langEnBtn?.classList.remove('active'); });
-  if (langEnBtn) langEnBtn.addEventListener('click', () => { currentLanguage = 'en-US'; langEnBtn.classList.add('active'); langUzBtn?.classList.remove('active'); });
+  if (langUzBtn) langUzBtn.addEventListener('click', () => {
+    currentLanguage = 'uz-UZ';
+    langUzBtn.classList.add('active');
+    langEnBtn?.classList.remove('active');
+    langRuBtn?.classList.remove('active');
+    if (recognition) recognition.lang = 'uz-UZ';
+  });
+  if (langEnBtn) langEnBtn.addEventListener('click', () => {
+    currentLanguage = 'en-US';
+    langEnBtn.classList.add('active');
+    langUzBtn?.classList.remove('active');
+    langRuBtn?.classList.remove('active');
+    if (recognition) recognition.lang = 'en-US';
+  });
+  if (langRuBtn) langRuBtn.addEventListener('click', () => {
+    currentLanguage = 'ru-RU';
+    langRuBtn.classList.add('active');
+    langUzBtn?.classList.remove('active');
+    langEnBtn?.classList.remove('active');
+    if (recognition) recognition.lang = 'ru-RU';
+  });
 });
