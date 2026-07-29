@@ -222,13 +222,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cleanText.length > 350) cleanText = cleanText.substring(0, 350) + "...";
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      const voice = getBestVoiceForLang();
 
-      if (voice) {
-        utterance.voice = voice;
-        utterance.lang = voice.lang;
+      // Har doim cachedVoices ni yangilab olish
+      if (!cachedVoices.length && window.speechSynthesis) {
+        cachedVoices = window.speechSynthesis.getVoices();
+      }
+
+      // Tanlangan tilga mos ovoz topish
+      let selectedVoice = null;
+      if (currentLanguage === 'ru-RU') {
+        selectedVoice = cachedVoices.find(v => v.lang.startsWith('ru')) || null;
+        utterance.lang = 'ru-RU';
+      } else if (currentLanguage === 'en-US') {
+        selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
+                        cachedVoices.find(v => v.lang.startsWith('en')) || null;
+        utterance.lang = 'en-US';
       } else {
-        utterance.lang = currentLanguage;
+        // uz-UZ — o'zbek ovozi yo'q, ingliz ovozi ishlatiladi
+        selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
+                        cachedVoices.find(v => v.lang.startsWith('en')) || null;
+        utterance.lang = 'en-US';
+      }
+
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
       utterance.rate = 0.95;
