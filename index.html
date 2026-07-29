@@ -40,8 +40,7 @@
 
       <div class="header-actions">
         <div class="lang-selector">
-          <button class="lang-btn active" id="langUzBtn" data-lang="uz-UZ">UZ</button>
-          <button class="lang-btn" id="langEnBtn" data-lang="en-US">EN</button>
+          <button class="lang-btn active" id="langEnBtn" data-lang="en-US">EN</button>
           <button class="lang-btn" id="langRuBtn" data-lang="ru-RU">RU</button>
         </div>
         <button class="icon-btn" id="soundToggleBtn" title="AI Ovozli Javobi Yoqilgan">
@@ -55,7 +54,7 @@
 
     <!-- Main Content Grid -->
     <main class="app-main">
-      <!-- Left Panel: AI Orb & Presets -->
+      <!-- Left Panel: AI Orb + Chat Tarix -->
       <aside class="sidebar-left">
         <!-- AI Orb Visualizer Card -->
         <div class="orb-card">
@@ -76,27 +75,19 @@
           </div>
         </div>
 
-        <!-- Recommended AI Prompts -->
-        <div class="card presets-widget">
+        <!-- Chat Tarix Panel -->
+        <div class="card chat-history-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-calculator"></i> Misol va Savol Namunalari</h3>
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Chat Tarixi</h3>
+            <button class="new-chat-btn" id="newChatBtn" title="Yangi chat">
+              <i class="fa-solid fa-plus"></i> Yangi Chat
+            </button>
           </div>
-          <div class="presets-list">
-            <button class="preset-btn" data-command="25 * 4 + 150 necha bo'ladi?">
-              <i class="fa-solid fa-square-root-variable"></i> Matematik misol: 25 * 4 + 150
-            </button>
-            <button class="preset-btn" data-command="Python dasturlash tilida eng muhim tushunchalarni va kod misolini ber">
-              <i class="fa-solid fa-code"></i> Dasturlash & Kod yozish
-            </button>
-            <button class="preset-btn" data-command="Dunyo mamlakatlari va poytaxtlari haqida ma'lumot ber">
-              <i class="fa-solid fa-globe"></i> Geografiya & Poytaxtlar
-            </button>
-            <button class="preset-btn" data-command="Menga mantiqiy topishmoq ayt">
-              <i class="fa-solid fa-puzzle-piece"></i> Mantiqiy Topishmoq
-            </button>
-            <button class="preset-btn" data-command="Ingliz tilida tez gapirish uchun 5 ta maslahat">
-              <i class="fa-solid fa-language"></i> Ingliz tili va Tarjima
-            </button>
+          <div class="history-list" id="historyList">
+            <div class="history-empty">
+              <i class="fa-solid fa-comment-slash"></i>
+              <span>Hali chat yo'q</span>
+            </div>
           </div>
         </div>
       </aside>

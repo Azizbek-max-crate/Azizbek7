@@ -21,13 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const langUzBtn = document.getElementById('langUzBtn');
   const langEnBtn = document.getElementById('langEnBtn');
   const langRuBtn = document.getElementById('langRuBtn');
+  const newChatBtn = document.getElementById('newChatBtn');
+  const historyList = document.getElementById('historyList');
 
   // Application State
-  let currentLanguage = 'uz-UZ';
+  let currentLanguage = 'en-US';
   let isListening = false;
   let ttsEnabled = true;
   let recognition = null;
   let activeState = 'idle';
+  let currentChatId = null;
+  let currentChatMessages = [];
 
   // Canvas Neon Orb Setup
   const canvas = document.getElementById('orbCanvas');
@@ -986,6 +990,123 @@ document.addEventListener('DOMContentLoaded', () => {
     return getSmartOfflineResponse(prompt);
   }
 
+  // ==============================================================
+  // CHAT TARIXI — localStorage orqali saqlash/yuklash
+  // ==============================================================
+
+  function getChatHistory() {
+    try { return JSON.parse(localStorage.getItem('jarvis_chats') || '[]'); } catch { return []; }
+  }
+
+  function saveChatHistory(chats) {
+    try { localStorage.setItem('jarvis_chats', JSON.stringify(chats)); } catch {}
+  }
+
+  function getCurrentChatMessages() {
+    const chats = getChatHistory();
+    const chat = chats.find(c => c.id === currentChatId);
+    return chat ? chat.messages : [];
+  }
+
+  function saveCurrentChat() {
+    if (!currentChatId || currentChatMessages.length === 0) return;
+    const chats = getChatHistory();
+    const idx = chats.findIndex(c => c.id === currentChatId);
+    const firstMsg = currentChatMessages.find(m => m.sender === 'user');
+    const title = firstMsg ? firstMsg.text.substring(0, 35) + (firstMsg.text.length > 35 ? '...' : '') : 'Chat';
+    const chatObj = { id: currentChatId, title, date: new Date().toLocaleDateString('uz-UZ'), messages: currentChatMessages };
+    if (idx >= 0) chats[idx] = chatObj;
+    else chats.unshift(chatObj);
+    saveChatHistory(chats);
+    renderHistoryList();
+  }
+
+  function startNewChat() {
+    // Avvalgi chatni saqlash
+    saveCurrentChat();
+    // Yangi chat boshlash
+    currentChatId = 'chat_' + Date.now();
+    currentChatMessages = [];
+    if (chatContainer) chatContainer.innerHTML = `
+      <div class="chat-message assistant-message">
+        <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="message-content">
+          <div class="message-header"><span class="author-name">JARVIS AI</span><span class="time-stamp">Hozir</span></div>
+          <div class="message-text"><p>Yangi chat boshlandi! 🚀 Savolingizni yozing yoki mikrofonga gapiring.</p></div>
+        </div>
+      </div>`;
+    renderHistoryList();
+  }
+
+  function loadChat(chatId) {
+    saveCurrentChat();
+    const chats = getChatHistory();
+    const chat = chats.find(c => c.id === chatId);
+    if (!chat) return;
+    currentChatId = chatId;
+    currentChatMessages = chat.messages || [];
+    if (!chatContainer) return;
+    chatContainer.innerHTML = '';
+    // Saqlanган xabarlarni ko'rsat
+    currentChatMessages.forEach(msg => {
+      appendChatMessageDOM(msg.sender, msg.text, msg.time);
+    });
+    renderHistoryList();
+  }
+
+  function deleteChat(chatId, e) {
+    e.stopPropagation();
+    const chats = getChatHistory().filter(c => c.id !== chatId);
+    saveChatHistory(chats);
+    if (currentChatId === chatId) startNewChat();
+    else renderHistoryList();
+  }
+
+  function renderHistoryList() {
+    if (!historyList) return;
+    const chats = getChatHistory();
+    if (chats.length === 0) {
+      historyList.innerHTML = `<div class="history-empty"><i class="fa-solid fa-comment-slash"></i><span>Hali chat yo'q</span></div>`;
+      return;
+    }
+    historyList.innerHTML = chats.map(chat => `
+      <div class="history-item ${chat.id === currentChatId ? 'active' : ''}" data-id="${chat.id}">
+        <div class="history-item-icon"><i class="fa-solid fa-message"></i></div>
+        <div class="history-item-info">
+          <div class="history-item-title">${escapeHTML(chat.title)}</div>
+          <div class="history-item-date">${chat.date}</div>
+        </div>
+        <button class="history-delete-btn" data-id="${chat.id}" title="O'chirish">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    `).join('');
+
+    historyList.querySelectorAll('.history-item').forEach(el => {
+      el.addEventListener('click', () => loadChat(el.dataset.id));
+    });
+    historyList.querySelectorAll('.history-delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => deleteChat(btn.dataset.id, e));
+    });
+  }
+
+  // Sahifa yuklanganda — oxirgi chatni yoki yangi chat boshlash
+  function initChat() {
+    const chats = getChatHistory();
+    if (chats.length > 0) {
+      currentChatId = chats[0].id;
+      currentChatMessages = chats[0].messages || [];
+      if (chatContainer) {
+        chatContainer.innerHTML = '';
+        currentChatMessages.forEach(msg => appendChatMessageDOM(msg.sender, msg.text, msg.time));
+      }
+    } else {
+      currentChatId = 'chat_' + Date.now();
+      currentChatMessages = [];
+    }
+    renderHistoryList();
+  }
+
   // Chat UI logic
   async function handleUserPrompt(promptText) {
     if (!promptText || !promptText.trim()) return;
@@ -1002,11 +1123,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function appendChatMessage(sender, text) {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Xabarni saqlash
+    currentChatMessages.push({ sender, text, time: timeStr });
+    saveCurrentChat();
+    appendChatMessageDOM(sender, text, timeStr);
+  }
+
+  function appendChatMessageDOM(sender, text, timeStr) {
     if (!chatContainer) return;
     const div = document.createElement('div');
     div.className = `chat-message ${sender}-message`;
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (!timeStr) {
+      const now = new Date();
+      timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
     const icon = sender === 'assistant' ? 'fa-robot' : 'fa-user';
     const name = sender === 'assistant' ? 'JARVIS AI' : 'Siz';
 
@@ -1076,45 +1208,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (micToggleBtn) micToggleBtn.addEventListener('click', () => { if (isListening) stopListening(); else startListening(); });
   if (btnCancelVoice) btnCancelVoice.addEventListener('click', stopListening);
 
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => { const cmd = btn.getAttribute('data-command'); if (cmd) handleUserPrompt(cmd); });
-  });
-
   if (soundToggleBtn) soundToggleBtn.addEventListener('click', () => {
     ttsEnabled = !ttsEnabled;
     soundToggleBtn.innerHTML = ttsEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
   });
 
   if (clearChatBtn) clearChatBtn.addEventListener('click', () => {
+    if (!confirm('Bu chatni tozalaysizmi?')) return;
+    currentChatMessages = [];
+    saveCurrentChat();
     if (chatContainer) chatContainer.innerHTML = `
       <div class="chat-message assistant-message">
         <div class="avatar"><i class="fa-solid fa-robot"></i></div>
         <div class="message-content">
           <div class="message-header"><span class="author-name">JARVIS AI</span><span class="time-stamp">Hozir</span></div>
-          <div class="message-text"><p>Chat tozalandi! Istalgan savolingizni yuboring. ⚽🔤🥊🌍</p></div>
+          <div class="message-text"><p>Chat tozalandi! Istalgan savolingizni yuboring. 🚀</p></div>
         </div>
       </div>`;
   });
 
-  if (langUzBtn) langUzBtn.addEventListener('click', () => {
-    currentLanguage = 'uz-UZ';
-    langUzBtn.classList.add('active');
-    langEnBtn?.classList.remove('active');
-    langRuBtn?.classList.remove('active');
-    if (recognition) recognition.lang = 'uz-UZ';
-  });
+  if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
+
   if (langEnBtn) langEnBtn.addEventListener('click', () => {
     currentLanguage = 'en-US';
     langEnBtn.classList.add('active');
-    langUzBtn?.classList.remove('active');
     langRuBtn?.classList.remove('active');
     if (recognition) recognition.lang = 'en-US';
   });
   if (langRuBtn) langRuBtn.addEventListener('click', () => {
     currentLanguage = 'ru-RU';
     langRuBtn.classList.add('active');
-    langUzBtn?.classList.remove('active');
     langEnBtn?.classList.remove('active');
     if (recognition) recognition.lang = 'ru-RU';
   });
+
+  // Ilovani ishga tushirish
+  initChat();
 });

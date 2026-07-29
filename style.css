@@ -750,3 +750,192 @@ pre {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 242, 254, 0.4);
 }
+
+/* ============================================================
+   CHAT TARIXI PANEL — Yangi Dizayn
+   ============================================================ */
+
+.chat-history-card {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-history-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  border: none;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 242, 254, 0.3);
+}
+
+.new-chat-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 242, 254, 0.5);
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 30px 0;
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.history-empty i {
+  font-size: 24px;
+  opacity: 0.4;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.history-item:hover {
+  background: rgba(0, 242, 254, 0.08);
+  border-color: rgba(0, 242, 254, 0.3);
+  transform: translateX(3px);
+}
+
+.history-item.active {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: rgba(0, 242, 254, 0.5);
+}
+
+.history-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(79, 172, 254, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.history-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-date {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+
+.history-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.history-item:hover .history-delete-btn {
+  opacity: 1;
+}
+
+.history-delete-btn:hover {
+  background: rgba(255, 23, 68, 0.2);
+  color: var(--accent-danger);
+}
+
+/* Header yangi dizayn */
+.app-header {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.95), rgba(10, 12, 20, 0.95));
+  border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 242, 254, 0.05);
+}
+
+/* Chat container yangi dizayn */
+.main-chat-section {
+  background: linear-gradient(180deg, rgba(10, 12, 20, 0.6) 0%, rgba(18, 24, 38, 0.8) 100%);
+  border: 1px solid rgba(0, 242, 254, 0.1);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Assistant xabar yangi */
+.assistant-message .message-text {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.9), rgba(10, 12, 20, 0.9));
+  border: 1px solid rgba(127, 0, 255, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Input yangi dizayn */
+.input-dock-container {
+  background: linear-gradient(135deg, rgba(10, 12, 20, 0.95), rgba(18, 24, 38, 0.95));
+  border-top: 1px solid rgba(0, 242, 254, 0.15);
+}
+
+.input-wrapper {
+  background: rgba(18, 24, 38, 0.8);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.25), inset 0 0 10px rgba(0, 242, 254, 0.05);
+}
