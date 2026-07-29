@@ -1009,24 +1009,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveCurrentChat() {
-    if (!currentChatId || currentChatMessages.length === 0) return;
+    if (!currentChatId) return;
     const chats = getChatHistory();
     const idx = chats.findIndex(c => c.id === currentChatId);
-    const firstMsg = currentChatMessages.find(m => m.sender === 'user');
-    const title = firstMsg ? firstMsg.text.substring(0, 35) + (firstMsg.text.length > 35 ? '...' : '') : 'Chat';
-    const chatObj = { id: currentChatId, title, date: new Date().toLocaleDateString('uz-UZ'), messages: currentChatMessages };
-    if (idx >= 0) chats[idx] = chatObj;
-    else chats.unshift(chatObj);
+    const firstUserMsg = currentChatMessages.find(m => m.sender === 'user');
+    const title = firstUserMsg
+      ? firstUserMsg.text.substring(0, 40) + (firstUserMsg.text.length > 40 ? '...' : '')
+      : 'Yangi chat';
+    const chatObj = {
+      id: currentChatId,
+      title,
+      date: new Date().toLocaleDateString('uz-UZ'),
+      messages: currentChatMessages
+    };
+    if (idx >= 0) {
+      chats[idx] = chatObj;
+    } else {
+      chats.unshift(chatObj);
+    }
     saveChatHistory(chats);
     renderHistoryList();
   }
 
   function startNewChat() {
-    // Avvalgi chatni saqlash
-    saveCurrentChat();
-    // Yangi chat boshlash
+    // Avvalgi chatni saqlash (xabar bo'lsa)
+    if (currentChatMessages.length > 0) {
+      saveCurrentChat();
+    }
+    // Yangi chat ID
     currentChatId = 'chat_' + Date.now();
     currentChatMessages = [];
+    // Yangi chat ekranini ko'rsat
     if (chatContainer) chatContainer.innerHTML = `
       <div class="chat-message assistant-message">
         <div class="avatar"><i class="fa-solid fa-robot"></i></div>
@@ -1035,6 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="message-text"><p>Yangi chat boshlandi! 🚀 Savolingizni yozing yoki mikrofonga gapiring.</p></div>
         </div>
       </div>`;
+    // Tarix ro'yxatini yangilab active ni ko'rsat
     renderHistoryList();
   }
 
@@ -1094,6 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initChat() {
     const chats = getChatHistory();
     if (chats.length > 0) {
+      // Oxirgi chatni ochish
       currentChatId = chats[0].id;
       currentChatMessages = chats[0].messages || [];
       if (chatContainer) {
@@ -1101,10 +1116,15 @@ document.addEventListener('DOMContentLoaded', () => {
         currentChatMessages.forEach(msg => appendChatMessageDOM(msg.sender, msg.text, msg.time));
       }
     } else {
+      // Birinchi marta — yangi chat ID
       currentChatId = 'chat_' + Date.now();
       currentChatMessages = [];
     }
     renderHistoryList();
+    // Sahifa yopilganda chatni saqlash
+    window.addEventListener('beforeunload', () => {
+      if (currentChatMessages.length > 0) saveCurrentChat();
+    });
   }
 
   // Chat UI logic
@@ -1125,9 +1145,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function appendChatMessage(sender, text) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    // Xabarni saqlash
+    // Xabarni ro'yxatga qo'shish
     currentChatMessages.push({ sender, text, time: timeStr });
+    // Darhol localStorage ga saqlash
     saveCurrentChat();
+    // Ekranda ko'rsat
     appendChatMessageDOM(sender, text, timeStr);
   }
 
