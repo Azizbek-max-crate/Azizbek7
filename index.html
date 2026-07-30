@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dark-theme">
@@ -18,20 +19,25 @@
   </div>
 
   <div class="app-container">
+    <!-- Header Navbar -->
     <header class="app-header">
       <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-atom fa-spin"></i></div>
+        <div class="brand-icon">
+          <i class="fa-solid fa-atom fa-spin"></i>
+        </div>
         <div class="brand-text">
           <h1>JARVIS <span>AI Universal</span></h1>
           <p>Universal Misol & Savol-Javob Tizimi</p>
         </div>
       </div>
+
       <div class="header-status">
         <div class="status-badge idle" id="aiStatusBadge">
           <span class="status-dot"></span>
           <span id="aiStatusText">AI Tayyor</span>
         </div>
       </div>
+
       <div class="header-actions">
         <div class="lang-selector">
           <button class="lang-btn active" id="langUzBtn" data-lang="uz-UZ">UZ</button>
@@ -47,12 +53,17 @@
       </div>
     </header>
 
+    <!-- Main Content Grid -->
     <main class="app-main">
+      <!-- Left Panel: AI Orb + Chat Tarix -->
       <aside class="sidebar-left">
+        <!-- AI Orb Visualizer Card -->
         <div class="orb-card">
           <div class="orb-header">
             <span class="orb-title">OVOZLI NEON ORB</span>
-            <span class="speech-indicator" id="speakingPulse"><i class="fa-solid fa-signal"></i></span>
+            <span class="speech-indicator" id="speakingPulse">
+              <i class="fa-solid fa-signal"></i>
+            </span>
           </div>
           <div class="canvas-wrapper">
             <canvas id="orbCanvas" width="280" height="280"></canvas>
@@ -65,6 +76,7 @@
           </div>
         </div>
 
+        <!-- Chat Tarix Panel -->
         <div class="card chat-history-card">
           <div class="card-header">
             <h3><i class="fa-solid fa-clock-rotate-left"></i> Chat Tarixi</h3>
@@ -81,30 +93,36 @@
         </div>
       </aside>
 
+      <!-- Center Panel: Main ChatGPT Stream & Input -->
       <section class="main-chat-section">
         <div class="chat-container" id="chatContainer">
+          <!-- Welcome Message -->
           <div class="chat-message assistant-message">
-            <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+            <div class="avatar">
+              <i class="fa-solid fa-robot"></i>
+            </div>
             <div class="message-content">
               <div class="message-header">
                 <span class="author-name">JARVIS AI</span>
                 <span class="time-stamp">Hozir</span>
               </div>
               <div class="message-text">
-                <p>Salom! Men siz bergan <strong>HAR QANDAY MATHEMATIK MISOL</strong> va <strong>HAR QANDAY SAVOLGA</strong> javob beruvchi Universal AI Yordamchingizman. 🧮🧠</p>
+                <p>Salom! Men siz bergan **HAR QANDAY MATHEMATIK MISOL** va **HAR QANDAY SAVOLGA** javob hamda yechim beruvchi Universal AI Yordamchingizman. 🧮🧠</p>
                 <p>Chatga yozing yoki mikrofonga ayting:</p>
                 <ul>
-                  <li><em>"25 * 4 + 150 / 3 necha bo'ladi?"</em></li>
+                  <li><em>"25 * 4 + 150 / 3 necha bo'ladi?"</em> (Matematik hisoblab beradi)</li>
                   <li><em>"Python'da massivlarni saralash kodi"</em></li>
                   <li><em>"Fransiyaning poytaxti qaysi?"</em></li>
-                  <li><em>"inglizchaga tarjima: Men bugun maktabga bordim"</em></li>
+                  <li><em>"Nyutonning ikkinchi qonunini tushuntir"</em></li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Input Dock Area -->
         <div class="input-dock-container">
+          <!-- Voice Activity Wave Banner -->
           <div class="voice-activity-bar hidden" id="voiceActivityBar">
             <div class="wave-lines">
               <span></span><span></span><span></span><span></span><span></span>
@@ -112,14 +130,17 @@
             <span class="listening-text" id="listeningText">Sizni eshitayapman... (Gapiring)</span>
             <button class="btn-cancel-voice" id="btnCancelVoice"><i class="fa-solid fa-xmark"></i></button>
           </div>
+
           <div class="input-form">
-            <button class="mic-toggle-btn" id="micToggleBtn" title="Ovozli savol berish">
+            <button class="mic-toggle-btn" id="micToggleBtn" title="Ovozli savol berish (Mikrofon)">
               <i class="fa-solid fa-microphone"></i>
               <span class="mic-pulse"></span>
             </button>
+
             <div class="input-wrapper">
-              <input type="text" id="userInput" placeholder="Misol yozing (25 * 4 + 100) yoki savol bering..." autocomplete="off">
+              <input type="text" id="userInput" placeholder="Istalgan misolingizni yozing (masalan: '25 * 4 + 100') yoki savol bering..." autocomplete="off">
             </div>
+
             <button class="send-btn" id="sendBtn" title="Yuborish">
               <i class="fa-solid fa-paper-plane"></i>
             </button>
