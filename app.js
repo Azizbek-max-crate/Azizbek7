@@ -214,13 +214,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Math Solver Engine
+  // Math Solver Engine (math.js xavfsiz hisoblash bilan)
   function trySolveMath(promptText) {
     try {
       let cleanExpr = promptText.toLowerCase()
         .replace(/(qancha|necha|hisobla|javobi|yechib|ber|nimaga|teng|hisoblab|\?|!|=)/g, '')
         .replace(/\bx\b/g, '*').replace(/bo'luv|boluv/g, '/').replace(/ko'paytir\w*/g, '*')
         .replace(/plus|qo'shil\w*/g, '+').replace(/minus|ayril\w*/g, '-').replace(/\^/g, '**').trim();
+      // math.js mavjud bo'lsa — xavfsiz hisoblash
+      if (typeof math !== 'undefined' && /[0-9]/.test(cleanExpr) && /[+\-*/^().]/.test(cleanExpr)) {
+        const result = math.evaluate(cleanExpr);
+        if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+          return `**🧮 Matematik Yechim:**\n\n\`\`\`math\nIfoda: ${cleanExpr}\nNatija: ${result}\n\`\`\`\n\n**Javob:** **${result}**`;
+        }
+      }
+      // Zaxira: oddiy regex test (faqat raqamlar va operatorlar)
       if (/^[0-9.\s+\-*/()** ]+$/.test(cleanExpr) && /[0-9]/.test(cleanExpr)) {
         const result = Function('"use strict"; return (' + cleanExpr + ')')();
         if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
@@ -623,29 +631,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Main AI Controller
   async function generateUniversalAIResponse(prompt) {
     const isUz = currentLanguage === 'uz-UZ';
+    const isRu = currentLanguage === 'ru-RU';
+    const isEn = currentLanguage === 'en-US';
 
+    // EN yoki RU tanlanganda — to'g'ridan Pollinations AI ga yuborish
+    if (isRu || isEn) {
+      setAIState('processing');
+      const answer = await askPollinationsInLang(prompt);
+      if (answer && answer.length > 5) return answer;
+      return getOfflineLangResponse(prompt);
+    }
+
+    // UZ tanlanganda — barcha built-in logikalar
     const mathR = trySolveMath(prompt);
     if (mathR) return mathR;
 
     const codeR = checkCodingHelp(prompt);
     if (codeR) return codeR;
 
-    if (isUz) {
-      const transR = await checkTranslationQuery(prompt); if (transR) return transR;
-      const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
-      const convR  = checkConversation(prompt);  if (convR)  return convR;
-      const idR    = checkIdentityOrGreeting(prompt); if (idR) return idR;
-      const builtR = checkBuiltInSportsAndEntities(prompt); if (builtR) return builtR;
-      setAIState('processing');
-      const live = await fetchAIResponseWithLang(prompt);
-      if (live && live.length > 5) return live;
-      return getSmartOfflineResponse(prompt);
-    }
-
+    const transR = await checkTranslationQuery(prompt); if (transR) return transR;
+    const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
+    const convR  = checkConversation(prompt);  if (convR)  return convR;
+    const idR    = checkIdentityOrGreeting(prompt); if (idR) return idR;
+    const builtR = checkBuiltInSportsAndEntities(prompt); if (builtR) return builtR;
     setAIState('processing');
-    const answer = await askPollinationsInLang(prompt);
-    if (answer && answer.length > 5) return answer;
-    return getOfflineLangResponse(prompt);
+    const live = await fetchAIResponseWithLang(prompt);
+    if (live && live.length > 5) return live;
+    return getSmartOfflineResponse(prompt);
   }
 
   // Chat History
@@ -729,15 +741,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Chat UI
-  async function handleUserPrompt(promptText) {
+  async function handleUserPrompt(promptText, isRegenerate) {
     if (!promptText || !promptText.trim()) return;
     const text = promptText.trim();
-    appendChatMessage('user', text);
-    if (userInput) userInput.value = '';
+    if (!isRegenerate) {
+      appendChatMessage('user', text);
+      if (userInput) userInput.value = '';
+    }
     setAIState('processing');
+    showTypingIndicator();
     setTimeout(async () => {
       const response = await generateUniversalAIResponse(text);
-      appendChatMessage('assistant', response);
+      removeTypingIndicator();
+      appendChatMessageWithRegenerate('assistant', response, text);
       speakResponse(response);
     }, 150);
   }
@@ -779,6 +795,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function formatMarkdown(text) {
     if (!text) return '';
+    // marked.js mavjud bo'lsa — to'liq markdown render (table, blockquote ham ishlaydi)
+    if (typeof marked !== 'undefined') {
+      try {
+        marked.setOptions({ breaks: true, gfm: true });
+        return marked.parse(text);
+      } catch (e) {}
+    }
+    // Zaxira: oddiy formatter
     let html = escapeHTML(text);
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (m, lang, code) =>
       `<div class="code-block-container"><div class="code-header"><span>${lang||'code'}</span><button class="copy-code-btn"><i class="fa-solid fa-copy"></i> Nusxa olish</button></div><pre><code>${code.trim()}</code></pre></div>`
@@ -914,25 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {}
   }
 
-  // 4. TYPING INDICATOR + REGENERATE ni handleUserPrompt ga ulash
-  // Mavjud handleUserPrompt ni kengaytirish
-  const _origHandleUserPrompt = handleUserPrompt;
-  async function handleUserPrompt(promptText, isRegenerate) {
-    if (!promptText || !promptText.trim()) return;
-    const text = promptText.trim();
-    if (!isRegenerate) {
-      appendChatMessage('user', text);
-      if (userInput) userInput.value = '';
-    }
-    setAIState('processing');
-    showTypingIndicator();
-    setTimeout(async () => {
-      const response = await generateUniversalAIResponse(text);
-      removeTypingIndicator();
-      appendChatMessageWithRegenerate('assistant', response, text);
-      speakResponse(response);
-    }, 150);
-  }
+  // 4. TYPING INDICATOR + REGENERATE — handleUserPrompt yuqorida yangilandi
 
   // 5. REGENERATE tugmali xabar qo'shish
   function appendChatMessageWithRegenerate(sender, text, originalPrompt) {
@@ -987,37 +993,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 6. marked.js ishlatish (mavjud formatMarkdown o'rniga)
-  const _origFormatMarkdown = formatMarkdown;
-  function formatMarkdown(text) {
-    if (!text) return '';
-    if (typeof marked !== 'undefined') {
-      try {
-        marked.setOptions({ breaks: true, gfm: true });
-        return marked.parse(text);
-      } catch (e) {}
-    }
-    return _origFormatMarkdown(text);
-  }
-
-  // 7. math.js bilan xavfsiz hisoblash (mavjud trySolveMath ni override)
-  const _origTrySolveMath = trySolveMath;
-  function trySolveMath(promptText) {
-    if (typeof math !== 'undefined') {
-      try {
-        let cleanExpr = promptText.toLowerCase()
-          .replace(/(qancha|necha|hisobla|javobi|yechib|ber|nimaga|teng|hisoblab|\?|!|=)/g, '')
-          .replace(/\bx\b/g, '*').replace(/bo'luv|boluv/g, '/')
-          .replace(/ko'paytir\w*/g, '*').replace(/plus|qo'shil\w*/g, '+')
-          .replace(/minus|ayril\w*/g, '-').replace(/\^/g, '**').trim();
-        if (/[0-9]/.test(cleanExpr) && /[+\-*/^().]/.test(cleanExpr)) {
-          const result = math.evaluate(cleanExpr);
-          if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-            return `**🧮 Matematik Yechim:**\n\n\`\`\`\nIfoda: ${cleanExpr}\nNatija: ${result}\n\`\`\`\n\n**Javob: ${result}**`;
-          }
-        }
-      } catch (e) {}
-    }
-    return _origTrySolveMath(promptText);
-  }
+  // 6 & 7 — marked.js va math.js to'g'ridan funksiyalar ichida ishlatiladi (yuqorida yangilandi)
 
 });
