@@ -1021,9 +1021,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tanlangan til uchun AI system prompt
   function getLangSystemPrompt() {
-    if (currentLanguage === 'ru-RU') return 'Отвечай ТОЛЬКО на русском языке. Будь дружелюбным, чётким и понятным.';
-    if (currentLanguage === 'en-US') return 'Answer ONLY in English. Be friendly, clear and helpful.';
-    return "Faqat O'zbek tilida javob ber. Do'stona, aniq va tushunarli bo'l.";
+    if (currentLanguage === 'ru-RU') return 'Ты — умный голосовой помощник JARVIS AI. Отвечай ТОЛЬКО на русском языке. На любой вопрос давай подробный, полезный и дружелюбный ответ на русском. Никогда не отвечай на других языках.';
+    if (currentLanguage === 'en-US') return 'You are JARVIS AI, a smart voice assistant. Answer ONLY in English. Give detailed, helpful and friendly answers in English to any question. Never answer in other languages.';
+    return "Sen JARVIS AI — aqlli ovozli yordamchisan. Faqat O'ZBEK TILIDA javob ber. Har qanday savolga o'zbek tilida batafsil va do'stona javob ber.";
   }
 
   // Javobni tanlangan tilga o'girish (Pollinations AI orqali)
@@ -1162,20 +1162,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tanlangan tilda to'g'ridan Pollinations AI dan javob olish
   async function askPollinationsInLang(userPrompt) {
-    try {
-      const sysPrompt = getLangSystemPrompt();
-      const url = `https://text.pollinations.ai/${encodeURIComponent(userPrompt)}?system=${encodeURIComponent(sysPrompt)}&seed=42`;
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 10000);
-      const res = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(tid);
-      if (res.ok) {
-        const text = (await res.text()).trim();
-        if (text && text.length > 5 && !text.includes('402') && !/^error/i.test(text)) {
-          return text;
+    const sysPrompt = getLangSystemPrompt();
+    const endpoints = [
+      `https://text.pollinations.ai/${encodeURIComponent(userPrompt)}?system=${encodeURIComponent(sysPrompt)}&seed=42&model=openai`,
+      `https://text.pollinations.ai/${encodeURIComponent(userPrompt)}?system=${encodeURIComponent(sysPrompt)}&seed=42`
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(tid);
+        if (res.ok) {
+          const text = (await res.text()).trim();
+          if (text && text.length > 5 && !text.includes('402') && !/^error/i.test(text)) {
+            return text;
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) { continue; }
+    }
     return null;
   }
 
