@@ -1074,7 +1074,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // MAIN CONTROLLER
   // ==============================================================
   async function generateUniversalAIResponse(prompt) {
-    const p = prompt.toLowerCase().trim();
     const isUz = currentLanguage === 'uz-UZ';
     const isRu = currentLanguage === 'ru-RU';
     const isEn = currentLanguage === 'en-US';
@@ -1087,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeR = checkCodingHelp(prompt);
     if (codeR) return codeR;
 
-    // UZ da — built-in javoblar o'zbekcha
+    // UZ da — built-in o'zbekcha javoblar
     if (isUz) {
       const transR = await checkTranslationQuery(prompt); if (transR) return transR;
       const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
@@ -1100,27 +1099,65 @@ document.addEventListener('DOMContentLoaded', () => {
       return getSmartOfflineResponse(prompt);
     }
 
-    // EN yoki RU da — to'g'ridan Pollinations AI tanlangan tilda
+    // EN yoki RU — avval Pollinations AI (internet bo'lsa)
     setAIState('processing');
     const answer = await askPollinationsInLang(prompt);
     if (answer && answer.length > 5) return answer;
 
-    // Pollinations ishlamasa — built-in javoblarni tegishli tilda qaytarish
+    // Pollinations ishlamasa — tanlangan tilda offline javob
+    return getOfflineLangResponse(prompt);
+  }
+
+  // EN / RU offline javoblar
+  function getOfflineLangResponse(prompt) {
+    const p = prompt.toLowerCase().trim();
+    const isRu = currentLanguage === 'ru-RU';
+
     if (isRu) {
-      if (/сало|привет|здравствуй|здравствуйте|добр/i.test(p))
-        return `👋 Привет! Я **JARVIS AI** — ваш умный голосовой помощник!\n\nЯ умею:\n- ⚽ Спорт и клубы: Arsenal, Real Madrid, Messi...\n- 🐾 Животные: любая информация\n- 🔤 Переводы: на все языки\n- 🧮 Математика и логика`;
-      if (/ты кто|кто ты|что ты|jarvis/i.test(p))
-        return `🤖 Я **JARVIS AI** — универсальный голосовой помощник!\n\nЗнаю всё о спорте, животных, переводах, программировании и многом другом. Задайте любой вопрос!`;
-      return `🤖 **JARVIS AI:** Ваш вопрос получен. Попробуйте спросить о спорте, животных, переводе или математике!`;
+      // Salomlashish
+      if (/привет|здравствуй|здравствуйте|салам|сало|добрый|доброе/.test(p))
+        return `👋 **Привет! Я JARVIS AI!**\n\nЯ умею:\n- ⚽ Спорт и клубы (Arsenal, Real Madrid, Месси...)\n- 🐾 Животные (любая информация)\n- 🔤 Переводы (все языки)\n- 🧮 Математика и логические задачи\n- 💻 Программирование (Python, Java, JS)\n\nЗадайте любой вопрос!`;
+      // Kim sensan
+      if (/кто ты|ты кто|что такое|jarvis|джарвис/.test(p))
+        return `🤖 **Я JARVIS AI** — универсальный голосовой помощник!\n\nЗнаю всё о спорте, животных, переводах, программировании и многом другом.`;
+      // Rahmat
+      if (/спасибо|благодарю|пасиба/.test(p))
+        return `😊 **Пожалуйста!** Рад помочь. Если есть ещё вопросы — спрашивайте!`;
+      // Xayr
+      if (/пока|до свидания|прощай|увидимся/.test(p))
+        return `👋 **До свидания!** Возвращайтесь в любое время — я всегда здесь! ☀️`;
+      // Sport
+      if (/футбол|арсенал|реал|барселона|месси|роналдо/.test(p))
+        return `⚽ **Футбол**\n\n- 🏆 **Arsenal** — клуб Лондона, 13 чемпионатов Англии\n- 🏆 **Real Madrid** — 15 Лиг Чемпионов (рекорд!)\n- ⭐ **Месси** — 8 Золотых Мячей (рекорд!)\n- ⭐ **Роналду** — 900+ голов за карьеру`;
+      // Hayvonlar
+      if (/животн|собак|кошк|лев|слон|тигр|медведь/.test(p))
+        return `🐾 **Животные**\n\n- 🐘 **Слон** — живёт 60-70 лет, самое тяжёлое наземное животное\n- 🦁 **Лев** — царь зверей, живёт 10-15 лет\n- 🐶 **Собака** — живёт 10-15 лет, нюх в 100,000 раз сильнее\n- 🐱 **Кошка** — живёт 12-18 лет, видит в темноте в 6 раз лучше`;
+      // Basketbol
+      if (/баскетбол|нба|джордан|леброн/.test(p))
+        return `🏀 **Баскетбол и НБА**\n\n- 🐐 **Michael Jordan** — 6 чемпионов НБА, 5 MVP\n- 👑 **LeBron James** — рекорд по очкам (38,000+)\n- 🎯 **Stephen Curry** — рекорд по трёхочковым\n- 🏆 **2024:** Boston Celtics — чемпионы`;
+      // Default
+      return `🤖 **JARVIS AI:** Я получил ваш вопрос. Попробуйте спросить о спорте, животных, переводе или математике! Если у вас есть интернет — я отвечу на любой вопрос.`;
     }
-    if (isEn) {
-      if (/^(hello|hi|hey|greetings)/i.test(p))
-        return `👋 Hello! I'm **JARVIS AI** — your smart voice assistant!\n\nI know about:\n- ⚽ Sports & Clubs: Arsenal, Real Madrid, Messi...\n- 🐾 Animals: any information\n- 🔤 Translation: all languages\n- 🧮 Math & logic`;
-      if (/who are you|what are you|jarvis/i.test(p))
-        return `🤖 I'm **JARVIS AI** — a universal voice assistant!\n\nI know everything about sports, animals, translation, coding and much more. Ask me anything!`;
-      return `🤖 **JARVIS AI:** Question received. Try asking about sports, animals, translation or math!`;
-    }
-    return getSmartOfflineResponse(prompt);
+
+    // EN
+    if (/hello|hi|hey|greetings|good morning|good evening/.test(p))
+      return `👋 **Hello! I'm JARVIS AI!**\n\nI can help with:\n- ⚽ Sports & Clubs (Arsenal, Real Madrid, Messi...)\n- 🐾 Animals (any information)\n- 🔤 Translation (all languages)\n- 🧮 Math & logic puzzles\n- 💻 Coding (Python, Java, JS)\n\nAsk me anything!`;
+    if (/who are you|what are you|jarvis/.test(p))
+      return `🤖 **I'm JARVIS AI** — your universal voice assistant!\n\nI know everything about sports, animals, translation, coding and much more.`;
+    if (/thank|thanks/.test(p))
+      return `😊 **You're welcome!** Happy to help. Feel free to ask anything else!`;
+    if (/bye|goodbye|see you/.test(p))
+      return `👋 **Goodbye!** Come back anytime — I'm always here! ☀️`;
+    if (/football|soccer|arsenal|real madrid|messi|ronaldo/.test(p))
+      return `⚽ **Football**\n\n- 🏆 **Arsenal** — London club, 13 Premier League titles\n- 🏆 **Real Madrid** — 15 Champions League titles (record!)\n- ⭐ **Messi** — 8 Ballon d'Or awards (record!)\n- ⭐ **Ronaldo** — 900+ career goals`;
+    if (/animal|dog|cat|lion|elephant|tiger|bear/.test(p))
+      return `🐾 **Animals**\n\n- 🐘 **Elephant** — lives 60-70 years, heaviest land animal\n- 🦁 **Lion** — king of animals, lives 10-15 years\n- 🐶 **Dog** — lives 10-15 years, smell 100,000x stronger\n- 🐱 **Cat** — lives 12-18 years, sees 6x better in dark`;
+    if (/basketball|nba|jordan|lebron/.test(p))
+      return `🏀 **Basketball & NBA**\n\n- 🐐 **Michael Jordan** — 6 NBA titles, 5 MVP awards\n- 👑 **LeBron James** — all-time scoring record (38,000+)\n- 🎯 **Stephen Curry** — all-time 3-point record\n- 🏆 **2024:** Boston Celtics — Champions`;
+    if (/my name|what is my|who am i/.test(p))
+      return `😊 I don't know your name yet — you haven't told me! What's your name?`;
+
+    return `🤖 **JARVIS AI:** Question received! Try asking about sports, animals, translation or math. With internet connection I can answer anything!`;
   }
 
   // Tanlangan tilda to'g'ridan Pollinations AI dan javob olish
