@@ -1074,38 +1074,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // MAIN CONTROLLER
   // ==============================================================
   async function generateUniversalAIResponse(prompt) {
-    // UZ da — oddiy built-in javoblar
-    if (currentLanguage === 'uz-UZ') {
-      const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
-      const convR = checkConversation(prompt); if (convR) return convR;
-      const codeR = checkCodingHelp(prompt); if (codeR) return codeR;
-      const mathR = trySolveMath(prompt); if (mathR) return mathR;
-      const idR = checkIdentityOrGreeting(prompt); if (idR) return idR;
+    const p = prompt.toLowerCase().trim();
+    const isUz = currentLanguage === 'uz-UZ';
+    const isRu = currentLanguage === 'ru-RU';
+    const isEn = currentLanguage === 'en-US';
+
+    // Math — barcha tillarda bir xil
+    const mathR = trySolveMath(prompt);
+    if (mathR) return mathR;
+
+    // Kod — tarjima kerak emas
+    const codeR = checkCodingHelp(prompt);
+    if (codeR) return codeR;
+
+    // UZ da — built-in javoblar o'zbekcha
+    if (isUz) {
       const transR = await checkTranslationQuery(prompt); if (transR) return transR;
+      const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
+      const convR  = checkConversation(prompt);  if (convR)  return convR;
+      const idR    = checkIdentityOrGreeting(prompt); if (idR) return idR;
       const builtR = checkBuiltInSportsAndEntities(prompt); if (builtR) return builtR;
       setAIState('processing');
       const live = await fetchAIResponseWithLang(prompt);
-      if (live && live.length > 10) return live;
+      if (live && live.length > 5) return live;
       return getSmartOfflineResponse(prompt);
     }
 
-    // EN yoki RU da — TO'G'RIDAN Pollinations AI ga tanlangan tilda so'rayman
+    // EN yoki RU da — to'g'ridan Pollinations AI tanlangan tilda
     setAIState('processing');
-
-    // Avval math va kod — bular tildan mustaqil
-    const mathR = trySolveMath(prompt); if (mathR) return mathR;
-    const codeR = checkCodingHelp(prompt); if (codeR) return codeR;
-
-    // Pollinations AI — tanlangan tilda to'liq javob
     const answer = await askPollinationsInLang(prompt);
     if (answer && answer.length > 5) return answer;
 
-    // Fallback — built-in javobni tarjima qilib qaytarish
-    const builtR = checkBuiltInSportsAndEntities(prompt);
-    if (builtR) return await translateResponseIfNeeded(builtR);
-    const convR = checkConversation(prompt);
-    if (convR) return await translateResponseIfNeeded(convR);
-    return await translateResponseIfNeeded(getSmartOfflineResponse(prompt));
+    // Pollinations ishlamasa — built-in javoblarni tegishli tilda qaytarish
+    if (isRu) {
+      if (/сало|привет|здравствуй|здравствуйте|добр/i.test(p))
+        return `👋 Привет! Я **JARVIS AI** — ваш умный голосовой помощник!\n\nЯ умею:\n- ⚽ Спорт и клубы: Arsenal, Real Madrid, Messi...\n- 🐾 Животные: любая информация\n- 🔤 Переводы: на все языки\n- 🧮 Математика и логика`;
+      if (/ты кто|кто ты|что ты|jarvis/i.test(p))
+        return `🤖 Я **JARVIS AI** — универсальный голосовой помощник!\n\nЗнаю всё о спорте, животных, переводах, программировании и многом другом. Задайте любой вопрос!`;
+      return `🤖 **JARVIS AI:** Ваш вопрос получен. Попробуйте спросить о спорте, животных, переводе или математике!`;
+    }
+    if (isEn) {
+      if (/^(hello|hi|hey|greetings)/i.test(p))
+        return `👋 Hello! I'm **JARVIS AI** — your smart voice assistant!\n\nI know about:\n- ⚽ Sports & Clubs: Arsenal, Real Madrid, Messi...\n- 🐾 Animals: any information\n- 🔤 Translation: all languages\n- 🧮 Math & logic`;
+      if (/who are you|what are you|jarvis/i.test(p))
+        return `🤖 I'm **JARVIS AI** — a universal voice assistant!\n\nI know everything about sports, animals, translation, coding and much more. Ask me anything!`;
+      return `🤖 **JARVIS AI:** Question received. Try asking about sports, animals, translation or math!`;
+    }
+    return getSmartOfflineResponse(prompt);
   }
 
   // Tanlangan tilda to'g'ridan Pollinations AI dan javob olish
