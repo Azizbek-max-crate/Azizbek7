@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- marked.js — Markdown render -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- math.js — Xavfsiz matematik hisoblash -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.3/lib/browser/math.js"></script>
 </head>
 <body class="dark-theme">
   <div class="background-globes">
@@ -27,7 +31,7 @@
         </div>
         <div class="brand-text">
           <h1>JARVIS <span>AI Universal</span></h1>
-          <p>Universal Misol & Savol-Javob Tizimi</p>
+          <p>Universal Misol &amp; Savol-Javob Tizimi</p>
         </div>
       </div>
 
@@ -44,6 +48,10 @@
           <button class="lang-btn" id="langEnBtn" data-lang="en-US">EN</button>
           <button class="lang-btn" id="langRuBtn" data-lang="ru-RU">RU</button>
         </div>
+        <!-- Dark / Light tema toggle -->
+        <button class="icon-btn" id="themeToggleBtn" title="Tema almashtirish">
+          <i class="fa-solid fa-moon"></i>
+        </button>
         <button class="icon-btn" id="soundToggleBtn" title="AI Ovozli Javobi Yoqilgan">
           <i class="fa-solid fa-volume-high"></i>
         </button>
@@ -93,7 +101,7 @@
         </div>
       </aside>
 
-      <!-- Center Panel: Main ChatGPT Stream & Input -->
+      <!-- Center Panel: Main Chat Stream & Input -->
       <section class="main-chat-section">
         <div class="chat-container" id="chatContainer">
           <!-- Welcome Message -->
@@ -107,13 +115,13 @@
                 <span class="time-stamp">Hozir</span>
               </div>
               <div class="message-text">
-                <p>Salom! Men siz bergan **HAR QANDAY MATHEMATIK MISOL** va **HAR QANDAY SAVOLGA** javob hamda yechim beruvchi Universal AI Yordamchingizman. 🧮🧠</p>
+                <p>Salom! Men siz bergan <strong>HAR QANDAY MATHEMATIK MISOL</strong> va <strong>HAR QANDAY SAVOLGA</strong> javob hamda yechim beruvchi Universal AI Yordamchingizman. 🧮🧠</p>
                 <p>Chatga yozing yoki mikrofonga ayting:</p>
                 <ul>
-                  <li><em>"25 * 4 + 150 / 3 necha bo'ladi?"</em> (Matematik hisoblab beradi)</li>
+                  <li><em>"25 * 4 + 150 / 3 necha bo'ladi?"</em></li>
                   <li><em>"Python'da massivlarni saralash kodi"</em></li>
                   <li><em>"Fransiyaning poytaxti qaysi?"</em></li>
-                  <li><em>"Nyutonning ikkinchi qonunini tushuntir"</em></li>
+                  <li><em>"inglizchaga tarjima: Men bugun maktabga bordim"</em></li>
                 </ul>
               </div>
             </div>
@@ -138,7 +146,7 @@
             </button>
 
             <div class="input-wrapper">
-              <input type="text" id="userInput" placeholder="Istalgan misolingizni yozing (masalan: '25 * 4 + 100') yoki savol bering..." autocomplete="off">
+              <input type="text" id="userInput" placeholder="Misol yozing (25 * 4 + 100) yoki savol bering..." autocomplete="off">
             </div>
 
             <button class="send-btn" id="sendBtn" title="Yuborish">
