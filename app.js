@@ -1074,42 +1074,57 @@ document.addEventListener('DOMContentLoaded', () => {
   // MAIN CONTROLLER
   // ==============================================================
   async function generateUniversalAIResponse(prompt) {
-    // 0. Mantiqiy masala
-    const logicResult = checkLogicalPuzzle(prompt);
-    if (logicResult) return await translateResponseIfNeeded(logicResult);
+    // UZ da — oddiy built-in javoblar
+    if (currentLanguage === 'uz-UZ') {
+      const logicR = checkLogicalPuzzle(prompt); if (logicR) return logicR;
+      const convR = checkConversation(prompt); if (convR) return convR;
+      const codeR = checkCodingHelp(prompt); if (codeR) return codeR;
+      const mathR = trySolveMath(prompt); if (mathR) return mathR;
+      const idR = checkIdentityOrGreeting(prompt); if (idR) return idR;
+      const transR = await checkTranslationQuery(prompt); if (transR) return transR;
+      const builtR = checkBuiltInSportsAndEntities(prompt); if (builtR) return builtR;
+      setAIState('processing');
+      const live = await fetchAIResponseWithLang(prompt);
+      if (live && live.length > 10) return live;
+      return getSmartOfflineResponse(prompt);
+    }
 
-    // 0b. Muloqot / Suhbat
-    const convResult = checkConversation(prompt);
-    if (convResult) return await translateResponseIfNeeded(convResult);
-
-    // 0c. Kod yordami
-    const codeResult = checkCodingHelp(prompt);
-    if (codeResult) return codeResult; // kod tarjima qilinmaydi
-
-    // 1. Math
-    const mathResult = trySolveMath(prompt);
-    if (mathResult) return mathResult; // raqamlar o'zgarmaydi
-
-    // 2. Identity
-    const identityResult = checkIdentityOrGreeting(prompt);
-    if (identityResult) return await translateResponseIfNeeded(identityResult);
-
-    // 3. Tarjima
-    const translationResult = await checkTranslationQuery(prompt);
-    if (translationResult) return translationResult;
-
-    // 4. Sport, Hayvonlar
-    const builtInResult = checkBuiltInSportsAndEntities(prompt);
-    if (builtInResult) return await translateResponseIfNeeded(builtInResult);
-
-    // 5. Wikipedia + AI (tanlangan tilda)
+    // EN yoki RU da — TO'G'RIDAN Pollinations AI ga tanlangan tilda so'rayman
     setAIState('processing');
-    const liveAnswer = await fetchAIResponseWithLang(prompt);
-    if (liveAnswer && liveAnswer.length > 10) return liveAnswer;
 
-    // 6. Offline fallback
-    const offlineResult = getSmartOfflineResponse(prompt);
-    return await translateResponseIfNeeded(offlineResult);
+    // Avval math va kod — bular tildan mustaqil
+    const mathR = trySolveMath(prompt); if (mathR) return mathR;
+    const codeR = checkCodingHelp(prompt); if (codeR) return codeR;
+
+    // Pollinations AI — tanlangan tilda to'liq javob
+    const answer = await askPollinationsInLang(prompt);
+    if (answer && answer.length > 5) return answer;
+
+    // Fallback — built-in javobni tarjima qilib qaytarish
+    const builtR = checkBuiltInSportsAndEntities(prompt);
+    if (builtR) return await translateResponseIfNeeded(builtR);
+    const convR = checkConversation(prompt);
+    if (convR) return await translateResponseIfNeeded(convR);
+    return await translateResponseIfNeeded(getSmartOfflineResponse(prompt));
+  }
+
+  // Tanlangan tilda to'g'ridan Pollinations AI dan javob olish
+  async function askPollinationsInLang(userPrompt) {
+    try {
+      const sysPrompt = getLangSystemPrompt();
+      const url = `https://text.pollinations.ai/${encodeURIComponent(userPrompt)}?system=${encodeURIComponent(sysPrompt)}&seed=42`;
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 10000);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (res.ok) {
+        const text = (await res.text()).trim();
+        if (text && text.length > 5 && !text.includes('402') && !/^error/i.test(text)) {
+          return text;
+        }
+      }
+    } catch (e) {}
+    return null;
   }
 
   // Tanlangan tilda AI javob olish
