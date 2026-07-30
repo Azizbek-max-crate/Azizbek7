@@ -213,52 +213,60 @@ document.addEventListener('DOMContentLoaded', () => {
   function speakResponse(text) {
     if (!ttsEnabled || !window.speechSynthesis) return;
 
+    // UZ tanlangan bo'lsa ovoz o'chiriladi
+    if (currentLanguage === 'uz-UZ') {
+      setAIState('idle');
+      return;
+    }
+
     try {
       window.speechSynthesis.cancel();
 
       let cleanText = text
-        .replace(/```[\s\S]*?```/g, "Kod ko'rsatildi.")
+        .replace(/```[\s\S]*?```/g, '')
         .replace(/<[^>]*>/g, '')
         .replace(/[*_#`~]/g, '')
+        .replace(/&#\d+;/g, '')
+        .replace(/&\w+;/g, '')
         .trim();
 
       if (!cleanText) return;
-      if (cleanText.length > 350) cleanText = cleanText.substring(0, 350) + "...";
+      if (cleanText.length > 300) cleanText = cleanText.substring(0, 300) + '...';
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
 
-      // UZ tanlangan bo'lsa ovoz o'chiriladi
-      if (currentLanguage === 'uz-UZ') {
-        setAIState('idle');
-        return;
-      }
-
-      // Voices yangilash
-      if (!cachedVoices.length && window.speechSynthesis) {
+      // Voices bo'sh bo'lsa qayta yuklash
+      if (!cachedVoices.length) {
         cachedVoices = window.speechSynthesis.getVoices();
       }
 
-      // Tanlangan tilga mos ovoz topish
-      let selectedVoice = null;
       if (currentLanguage === 'ru-RU') {
-        selectedVoice = cachedVoices.find(v => v.lang.startsWith('ru')) || null;
         utterance.lang = 'ru-RU';
+        const ruVoice = cachedVoices.find(v => v.lang.startsWith('ru'))
+                     || cachedVoices.find(v => v.lang.toLowerCase().includes('ru'));
+        if (ruVoice) utterance.voice = ruVoice;
       } else {
-        selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
-                        cachedVoices.find(v => v.lang.startsWith('en')) || null;
         utterance.lang = 'en-US';
+        const enVoice = cachedVoices.find(v => v.lang.startsWith('en-US'))
+                     || cachedVoices.find(v => v.lang.startsWith('en'));
+        if (enVoice) utterance.voice = enVoice;
       }
-
-      if (selectedVoice) utterance.voice = selectedVoice;
 
       utterance.rate = 0.95;
       utterance.pitch = 1.0;
-
       utterance.onstart = () => setAIState('speaking');
-      utterance.onend = () => setAIState('idle');
+      utterance.onend   = () => setAIState('idle');
       utterance.onerror = () => setAIState('idle');
 
-      window.speechSynthesis.speak(utterance);
+      // Voices hali yuklanmagan bo'lsa — delay bilan urinish
+      if (!cachedVoices.length) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          cachedVoices = window.speechSynthesis.getVoices();
+          window.speechSynthesis.speak(utterance);
+        };
+      } else {
+        window.speechSynthesis.speak(utterance);
+      }
     } catch (e) {
       setAIState('idle');
     }
@@ -1018,24 +1026,48 @@ document.addEventListener('DOMContentLoaded', () => {
     return "Faqat O'zbek tilida javob ber. Do'stona, aniq va tushunarli bo'l.";
   }
 
-  // Javobni tanlangan tilga o'girish (built-in javoblar uchun)
+  // Javobni tanlangan tilga o'girish (Pollinations AI orqali)
   async function translateResponseIfNeeded(text) {
-    if (currentLanguage === 'uz-UZ') return text; // o'zbek — o'zgarishsiz
+    if (currentLanguage === 'uz-UZ') return text;
+
     const toLang = currentLanguage === 'ru-RU' ? 'ru' : 'en';
+
+    // Markdown va HTML tozalash
+    const plain = text
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/[*_#`~]/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+      .substring(0, 800);
+
+    if (!plain || plain.length < 3) return text;
+
     try {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0, 500))}&langpair=uz|${toLang}`;
+      const inst = toLang === 'ru'
+        ? `Переведи этот текст на русский язык. Только перевод без пояснений:\n${plain}`
+        : `Translate this text to English. Only translation without explanations:\n${plain}`;
+
+      const url = `https://text.pollinations.ai/${encodeURIComponent(inst)}?seed=99`;
       const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 8000);
+      const tid = setTimeout(() => ctrl.abort(), 10000);
       const res = await fetch(url, { signal: ctrl.signal });
       clearTimeout(tid);
+
       if (res.ok) {
-        const data = await res.json();
-        if (data?.responseStatus === 200 && data?.responseData?.translatedText) {
-          return data.responseData.translatedText;
+        const out = (await res.text()).trim();
+        if (out && out.length > 3
+          && !out.includes('&#')
+          && !out.includes('&amp;')
+          && !out.includes('402')
+          && !/^error/i.test(out)) {
+          return out;
         }
       }
     } catch (e) {}
-    return text; // tarjima bo'lmasa — original
+
+    return text; // internet yo'q — asl matn
   }
 
   // ==============================================================
@@ -1387,11 +1419,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Ilovani ishga tushirish
   initChat();
-});
 
-  // ============================================================
-  // EVENT LISTENERS
-  // ============================================================
+});
 
   if (sendBtn) sendBtn.addEventListener('click', e => {
     e.preventDefault();
