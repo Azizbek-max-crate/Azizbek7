@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyList = document.getElementById('historyList');
 
   // Application State
-  let currentLanguage = 'en-US';
+  let currentLanguage = 'uz-UZ';
   let isListening = false;
   let ttsEnabled = true;
   let recognition = null;
@@ -227,9 +227,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
 
-      // Har doim cachedVoices ni yangilab olish
-      if (!cachedVoices.length && window.speechSynthesis) {
-        cachedVoices = window.speechSynthesis.getVoices();
+      // UZ tanlangan bo'lsa ovoz o'chiriladi
+      if (currentLanguage === 'uz-UZ') {
+        setAIState('idle');
+        return;
       }
 
       // Tanlangan tilga mos ovoz topish
@@ -241,16 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
                         cachedVoices.find(v => v.lang.startsWith('en')) || null;
         utterance.lang = 'en-US';
-      } else {
-        // uz-UZ — o'zbek ovozi yo'q, ingliz ovozi ishlatiladi
-        selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
-                        cachedVoices.find(v => v.lang.startsWith('en')) || null;
-        utterance.lang = 'en-US';
       }
 
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
+      if (selectedVoice) utterance.voice = selectedVoice;
 
       utterance.rate = 0.95;
       utterance.pitch = 1.0;
@@ -497,26 +491,104 @@ document.addEventListener('DOMContentLoaded', () => {
       return `🥊 **Boks Sport Turi**\n\nBoks — ikki bokschi o me'da maxsus qo'lqoplarda o'tkaziladigan yakkakurash sport turi.\n\n🇺🇿 **O'zbekiston Boks Maktabi (Dunyoda №1!):**\n- 🥇 **Bakhodir Jalolov:** Tokyo 2020 Olimpiya Chempioni (Super og'ir vazn, 15-0 nokautlar)\n- 🥇 **Hasanboy Do'smatov:** Rio 2016 va Tokyo 2020 Olimpiya Chempioni (Val Barker kubogi)\n- 🥇 **Lazizbek Mullojonov, Abdumalik Khalokov, Asadkhuja Muydinkhujaev**\n\n🌟 **Jahon Afsonalari:** Muhammad Ali ("The Greatest"), Mike Tyson ("Iron Mike"), Tyson Fury, Oleksandr Usyk, Canelo Alvarez.`;
     }
 
-    if (/hayvon|hayvonlar|qo'y|qoy|fil|sher|ot|mushuk|it|ayiq|bo'ri|bori|tulki|tovuq|qush|baliq|yashaydi/.test(p)) {
+    if (/hayvon|hayvonlar|qo'y|qoy|fil|sher|ot|mushuk|it|ayiq|bo'ri|bori|tulki|tovuq|qush|baliq|yashaydi|kenguru|zebra|jiraffa|gipopotam|krokodil|timsoh|ilon|kaltakesak|toshbaqa|qurbaqa|bo'g'ma|maymun|gorilla|shimpanze|panda|qo'ng'iz|kapalak|asalari|chumoli|o'rgimchak|chayon|burgut|burgut|lochin|qoqish|tustovuq|to'ti|pingvin|tuyaqush|oqqush|o'rdak|g'oz|sichqon|kalamush|quyon|tuyaqush|bug'u|jayron|teri|kiyik|yovvoyi cho'chqa|sher|bars|leopard|gepard|pitsa|kit|delfinlar|delfin|akula|ot baliq|medusa|laqqa/.test(p)) {
       if (/qo'y|qoy/.test(p)) {
-        return `🐾 **Qo'y (Chorvachilik Hayvoni)**\n\n- ⏳ **Umri:** Qo'ylar o'rtacha **10 yildan 12 yilgacha** (ba'zan 15 yilgacha) yashaydi.\n- 🌿 **Oziqlanishi:** O'txur kavsh qaytaruvchi hayvon.\n- 👕 **Faydasi:** Go'sht, jun va sut beradi.\n- 💡 8000 yil ilgari xonakilashtirilgan.`;
+        return `🐑 **Qo'y**\n\n- ⏳ **Umri:** 10-15 yil\n- 🌍 **Yashash joyi:** Butun dunyo (xonakilashtirilgan)\n- 🌿 **Oziqlanishi:** O't, don\n- ⚖️ **Vazni:** 45-100 kg\n- 💡 **Qiziqarli fakt:** 8000 yil oldin xonakilashtirilgan, inson bilan eng qadimiy hayvonlardan biri.\n- 🎯 **Foyda:** Go'sht, jun, sut`;
       }
       if (/fil/.test(p)) {
-        return `🐘 **Fil (Dunyoning Eng Katta Quruqlik Hayvoni)**\n\n- ⏳ **Umri:** 60 - 70 yil yashaydi.\n- ⚖️ **Vazni:** 4,000 - 7,000 kg.\n- 🧠 Xotirasi nihoyatda kuchli hayvon.`;
+        return `🐘 **Fil**\n\n- ⏳ **Umri:** 60-70 yil\n- 🌍 **Yashash joyi:** Afrika va Osiyo\n- ⚖️ **Vazni:** 4,000-7,000 kg (eng og'ir quruqlik hayvoni)\n- 🧠 **Xotirasi:** Bir necha o'n yil eslab qoladi\n- 💡 **Qiziqarli fakt:** Burun bilan 8 litr suv shimib ichadi, issiqda o'zini sovutadi`;
       }
       if (/sher|aslon/.test(p)) {
-        return `🦁 **Sher (Hayvonlar Qiroli)**\n\n- ⏳ **Umri:** Tabiatda 10-15 yil.\n- 🥩 Yirtqich sutemizuvchi, Afrika va Hindistonda yashaydi.\n- 🐾 To'da (prayd) bo'lib ov qiladi.`;
+        return `🦁 **Sher**\n\n- ⏳ **Umri:** 10-15 yil (tabiatda), 20-25 yil (hayvonot bog'ida)\n- 🌍 **Yashash joyi:** Afrika savannasi, Hindiston (Gir o'rmoni)\n- ⚖️ **Vazni:** 150-250 kg\n- 🏃 **Tezligi:** 80 km/soat\n- 💡 **Qiziqarli fakt:** Erkak sher 12 soat uxlaydi, dishi ov qiladi`;
       }
       if (/ot|otlar/.test(p)) {
-        return `🐎 **Ot (Chorvachilik va Minish Hayvoni)**\n\n- ⏳ **Umri:** 25 - 30 yil yashaydi.\n- ⚡ Tezgina yuguradi, insonning eng yaqin do'stlaridan biri.`;
+        return `🐎 **Ot**\n\n- ⏳ **Umri:** 25-30 yil\n- 🌍 **Yashash joyi:** Butun dunyo\n- ⚖️ **Vazni:** 400-1000 kg\n- 🏃 **Tezligi:** 70 km/soat (tez yurganda)\n- 💡 **Qiziqarli fakt:** Tik turib uxlaydi, ko'zi 350 daraja ko'radi`;
       }
       if (/it|kuchuk/.test(p)) {
-        return `🐶 **It (Insonning Sadoqatli Do'sti)**\n\n- ⏳ **Umri:** 10 - 15 yil yashaydi.\n- 👂 Hidi va eshitish qobiliyati insondan 10,000 marta kuchli.`;
+        return `🐶 **It**\n\n- ⏳ **Umri:** 10-15 yil\n- 🌍 **Yashash joyi:** Butun dunyo (xonakilashtirilgan)\n- 🧠 **Aqli:** 2 yoshli bolaga teng\n- 👃 **Hidi:** Insondan 100,000 marta kuchli\n- 💡 **Qiziqarli fakt:** 15,000 yil oldin bo'ri dan xonakilashtirilgan`;
       }
       if (/mushuk/.test(p)) {
-        return `🐱 **Mushuk**\n\n- ⏳ **Umri:** 12 - 18 yil yashaydi.\n- 👁️ Qorong'ida juda yaxshi ko'radi.`;
+        return `🐱 **Mushuk**\n\n- ⏳ **Umri:** 12-18 yil\n- 🌍 **Yashash joyi:** Butun dunyo\n- 👁️ **Ko'rishi:** Qorong'ida 6 marta yaxshi ko'radi\n- 😴 **Uyqusi:** Kuniga 12-16 soat uxlaydi\n- 💡 **Qiziqarli fakt:** Mushuk miyovlashi faqat insonlar bilan muloqot uchun`;
       }
-      return `🐾 **Hayvonot Olami:**\n\n- 🐘 **Fil:** 60-70 yil yashaydi\n- 🐑 **Qo'y:** 10-12 yil yashaydi\n- 🦁 **Sher:** Hayvonlar qiroli (12-15 yil)\n- 🐎 **Ot:** 25-30 yil yashaydi\n- 🐶 **It:** 10-15 yil yashaydi\n\nIstalgan hayvon nomini yuboring!`;
+      if (/ayiq/.test(p)) {
+        return `🐻 **Ayiq**\n\n- ⏳ **Umri:** 20-30 yil\n- 🌍 **Yashash joyi:** Shimoliy Amerika, Yevropa, Osiyo\n- ⚖️ **Vazni:** 100-700 kg\n- 😴 **Qishki uyqu:** 4-6 oy uxlaydi\n- 💡 **Qiziqarli fakt:** Qutb ayig'i (oq ayiq) 40 km/soat suzadi`;
+      }
+      if (/bo'ri|bori|qashqir/.test(p)) {
+        return `🐺 **Bo'ri (Qashqir)**\n\n- ⏳ **Umri:** 6-8 yil (tabiatda), 16 yil (asirlikda)\n- 🌍 **Yashash joyi:** Shimoliy Amerika, Yevropa, Osiyo\n- ⚖️ **Vazni:** 25-50 kg\n- 🏃 **Tezligi:** 60 km/soat\n- 💡 **Qiziqarli fakt:** To'da bo'lib ov qiladi, 1 marta 9 kg go'sht yeydi`;
+      }
+      if (/tulki/.test(p)) {
+        return `🦊 **Tulki**\n\n- ⏳ **Umri:** 2-5 yil (tabiatda), 10-12 yil (asirlikda)\n- 🌍 **Yashash joyi:** Shimoliy yarimshar\n- ⚖️ **Vazni:** 3-11 kg\n- 🧠 **Aqli:** Juda ziyrak va ayyorlik bilan tanilgan\n- 💡 **Qiziqarli fakt:** 40 xil tovush chiqara oladi`;
+      }
+      if (/tovuq/.test(p)) {
+        return `🐔 **Tovuq**\n\n- ⏳ **Umri:** 5-10 yil\n- 🌍 **Yashash joyi:** Butun dunyo (xonakilashtirilgan)\n- 🥚 **Tuxum:** Yiliga 250-300 ta tuxum qo'yadi\n- 💡 **Qiziqarli fakt:** Dunyoda 33 milliard tovuq bor — inson sonidan 4 marta ko'p`;
+      }
+      if (/qush|parrand/.test(p)) {
+        return `🦅 **Qushlar Olami**\n\n**Eng mashhur qushlar:**\n- 🦅 **Burgut:** 3-4 km balanddan o'ljani ko'radi, 240 km/soat sho'ng'iydi\n- 🦜 **To'ti:** 50+ so'z gapira oladi, 60-80 yil yashaydi\n- 🐧 **Pingvin:** Uchmaydigan qush, 36 km/soat suzadi\n- 🦢 **Oqqush:** Umr bo'yi juft yashaydigan sodiq qush\n- 🦉 **Boyqush:** Boshini 270 daraja buradi\n- 🦚 **Tovus:** Dum patlari 1.5 m, dunyoning eng chiroyli qushi\n- 🐦 **Tustovuq:** O'zbekistonning milliy qushi`;
+      }
+      if (/burgut|lochin/.test(p)) {
+        return `🦅 **Burgut**\n\n- ⏳ **Umri:** 20-30 yil\n- 🌍 **Yashash joyi:** Shimoliy Amerika, Yevropa, Osiyo\n- 👁️ **Ko'rishi:** 3-4 km uzoqlikdan o'ljani ko'radi\n- 🏃 **Tezligi:** Sho'ng'iganda 240 km/soat\n- ⚖️ **Vazni:** 3-7 kg\n- 💡 **Qiziqarli fakt:** Ko'zini yummay uxlaydi`;
+      }
+      if (/to'ti/.test(p)) {
+        return `🦜 **To'ti**\n\n- ⏳ **Umri:** 60-80 yil (ba'zi turlari)\n- 🌍 **Yashash joyi:** Tropik o'rmonlar\n- 🗣️ **Gapirishsi:** 50-100 so'z eslab qoladi\n- 🧠 **Aqli:** 5 yoshli bolaga teng\n- 💡 **Qiziqarli fakt:** Kakapo to'tisi 9 kg — eng og'ir uchmaydigan qush`;
+      }
+      if (/pingvin/.test(p)) {
+        return `🐧 **Pingvin**\n\n- ⏳ **Umri:** 15-20 yil\n- 🌍 **Yashash joyi:** Antarktida, Janubiy Amerika\n- 🏊 **Suzishi:** 36 km/soat\n- ❄️ **Sovuqga chidamliligi:** -50°C da yashaydi\n- 💡 **Qiziqarli fakt:** Tuxumni ota pingvin 65 kun oyoqlari ustida saqlaydi`;
+      }
+      if (/baliq/.test(p)) {
+        return `🐟 **Baliqlar Olami**\n\n**Eng qiziqarli baliqlar:**\n- 🦈 **Akula:** 400 mln yildan beri yashayapti, 70 km/soat suzadi\n- 🐬 **Delfin:** Eng aqlli dengiz hayvoni, insonlar bilan muloqot qiladi\n- 🐋 **Kit:** Dunyodagi eng katta hayvon (30 m, 150 tonna)\n- 🐠 **Tropik baliqlar:** 3,500+ tur\n- 🦑 **Kalamar:** Ko'zi insonnikidan 3 marta katta\n- 🐡 **Fugu:** Eng zaharli baliq, Yaponiyada yeyiladi\n- 💡 Dunyoda 34,000+ tur baliq mavjud`;
+      }
+      if (/akula/.test(p)) {
+        return `🦈 **Akula**\n\n- ⏳ **Umri:** 20-30 yil (ba'zilari 70 yil)\n- 🌍 **Yashash joyi:** Barcha okeanlar\n- 🏊 **Tezligi:** 70 km/soat\n- 🦷 **Tishlari:** Umr bo'yi almashib turadi (20,000+ tish)\n- 💡 **Qiziqarli fakt:** Akula 400 million yildan beri yashaydi — dinozavrlardan ham eski`;
+      }
+      if (/kit/.test(p)) {
+        return `🐋 **Kit**\n\n- ⏳ **Umri:** 80-90 yil (ba'zilari 200 yil)\n- 🌍 **Yashash joyi:** Barcha okeanlar\n- ⚖️ **Vazni:** 150 tonna (Ko'k kit — eng og'ir hayvon)\n- 📏 **Uzunligi:** 30 metr\n- 💡 **Qiziqarli fakt:** Ko'k kitning yurak urishi minutiga 2 marta, ovozi 188 desibel`;
+      }
+      if (/delfin/.test(p)) {
+        return `🐬 **Delfin**\n\n- ⏳ **Umri:** 20-30 yil\n- 🌍 **Yashash joyi:** Barcha okeanlar va ba'zi daryolar\n- 🧠 **Aqli:** Insondan keyin eng aqlli hayvon\n- 🏊 **Tezligi:** 60 km/soat\n- 💡 **Qiziqarli fakt:** Har bir delfin o'z nomi bor — boshqa delfinlar uni ism bilan chaqiradi`;
+      }
+      if (/kenguru/.test(p)) {
+        return `🦘 **Kenguru**\n\n- ⏳ **Umri:** 6-8 yil\n- 🌍 **Yashash joyi:** Avstraliya\n- 🏃 **Tezligi:** 70 km/soat, 9 m uzunlikda sakraydi\n- 👶 **Bolasi:** Tug'ilganda 2 sm — ona cho'ntagida 8 oy o'sadi\n- 💡 **Qiziqarli fakt:** Orqaga yura olmaydi`;
+      }
+      if (/zebra/.test(p)) {
+        return `🦓 **Zebra**\n\n- ⏳ **Umri:** 20-25 yil\n- 🌍 **Yashash joyi:** Afrika\n- 🏃 **Tezligi:** 65 km/soat\n- 🦓 **Yo'llari:** Har bir zebraning yo'llari noyob — barmoq iziga o'xshash\n- 💡 **Qiziqarli fakt:** Oq yoki qora? Aslida qora teriga oq yo'llar`;
+      }
+      if (/jiraff|jiraffa|zirafa/.test(p)) {
+        return `🦒 **Jiraffa**\n\n- ⏳ **Umri:** 20-25 yil\n- 🌍 **Yashash joyi:** Afrika\n- 📏 **Bo'yi:** 5-6 metr (eng baland quruqlik hayvoni)\n- ⚖️ **Vazni:** 800-1200 kg\n- 💡 **Qiziqarli fakt:** Bo'yni 1.8 m bo'lsa ham, umurtqa soni insonnikidek — 7 ta`;
+      }
+      if (/timsoh|krokodil/.test(p)) {
+        return `🐊 **Timsoh (Krokodil)**\n\n- ⏳ **Umri:** 70-100 yil\n- 🌍 **Yashash joyi:** Afrika, Osiyo, Amerika, Avstraliya\n- ⚖️ **Vazni:** 400-1000 kg\n- 💪 **Tishining kuchi:** 3,700 funt — eng kuchli tishlash kuchi\n- 💡 **Qiziqarli fakt:** 200 million yildan beri o'zgarmagan — dinozavrlar davridagi ko'rinishi`;
+      }
+      if (/ilon/.test(p)) {
+        return `🐍 **Ilon**\n\n- ⏳ **Umri:** 10-30 yil\n- 🌍 **Yashash joyi:** Barcha qit'alar (Antarktidadan tashqari)\n- 📏 **Uzunligi:** 10 sm dan 7.5 metrgacha\n- 💡 **Qiziqarli fakt:** Qulog'i yo'q, titrashni sezadi. 600+ tur zaharli, 2400+ tur zararsiz\n- 🌿 **Foyda:** Kemiruvchilarni yo'q qiladi`;
+      }
+      if (/toshbaqa/.test(p)) {
+        return `🐢 **Toshbaqa**\n\n- ⏳ **Umri:** 80-150 yil (ba'zilari 250 yil!)\n- 🌍 **Yashash joyi:** Butun dunyo\n- 🐢 **Chig'anog'i:** Umurtqa pog'onasining bir qismi — ko'chira olmaydi\n- 💡 **Qiziqarli fakt:** Harriet ismli toshbaqa 175 yil yashagan (1830-2006)`;
+      }
+      if (/maymun|gorilla|shimpanze/.test(p)) {
+        return `🦍 **Maymunlar**\n\n- 🦍 **Gorilla:** Eng kuchli primat, 200 kg, DNK 98.3% insonnikidek\n- 🐒 **Shimpanze:** Eng aqlli, asbob ishlatadi, DNK 98.7% insonnikidek\n- 🦧 **Orangutan:** "O'rmon odami" — daraxtda yashaydi, 30 yil\n- 🐵 **Makak:** Sovuq suvda cho'miluvchi yagona maymun\n- 💡 Dunyoda 500+ tur maymun mavjud`;
+      }
+      if (/panda/.test(p)) {
+        return `🐼 **Panda**\n\n- ⏳ **Umri:** 15-20 yil\n- 🌍 **Yashash joyi:** Xitoy (Sichuan tog'lari)\n- 🎋 **Ovqati:** Kuniga 12-38 kg bambuk yeydi\n- ⚖️ **Vazni:** 75-135 kg\n- 💡 **Qiziqarli fakt:** Dunyo bo'yicha faqat 1,800 ta qolgan — yo'qolib ketish xavfi bor`;
+      }
+      if (/quyon/.test(p)) {
+        return `🐇 **Quyon**\n\n- ⏳ **Umri:** 8-12 yil\n- 🌍 **Yashash joyi:** Butun dunyo\n- 🏃 **Tezligi:** 70 km/soat\n- 👁️ **Ko'rishi:** 360 daraja ko'radi\n- 💡 **Qiziqarli fakt:** Tishlarini to'xtovsiz kemirishi kerak — tishlar o'sib boradi`;
+      }
+      if (/kalamush|sichqon/.test(p)) {
+        return `🐀 **Kalamush / Sichqon**\n\n- ⏳ **Umri:** 2-3 yil\n- 🌍 **Yashash joyi:** Butun dunyo\n- 🧬 **DNK:** Insonnikiga 85% o'xshash — tibbiy tadqiqotlarda ishlatiladi\n- 💡 **Qiziqarli fakt:** Sichqon kulgisi bor — ultratovushda`;
+      }
+      if (/asalari/.test(p)) {
+        return `🐝 **Asalari**\n\n- ⏳ **Umri:** Ishchi ari 6 hafta, malika 5 yil\n- 🌍 **Yashash joyi:** Butun dunyo (Antarktidadan tashqari)\n- 🍯 **Asal:** 1 kg asal uchun 4 mln gul tashrif\n- 💡 **Qiziqarli fakt:** Asalari yo'qolsa, insoniyat 4 yilda yo'q bo'ladi (Einstein)`;
+      }
+      if (/kapalak/.test(p)) {
+        return `🦋 **Kapalak**\n\n- ⏳ **Umri:** 2 hafta - 1 yil\n- 🌍 **Yashash joyi:** Butun dunyo\n- 👁️ **Ko'rishi:** Ultrabinafsha nurni ko'radi\n- 💡 **Qiziqarli fakt:** Monarch kapalak 4,000 km migratsiya qiladi`;
+      }
+      if (/bars|leopard|gepard/.test(p)) {
+        return `🐆 **Yo'lbars / Bars / Gepard**\n\n- 🐅 **Yo'lbars:** 100-300 kg, 60 km/soat, eng katta mushuksimon\n- 🐆 **Leopard:** 30-90 kg, daraxtga chiqadi, o'ljasini yuqoriga ko'taradi\n- 🐈 **Gepard:** 112 km/soat — quruqlikdagi eng tez hayvon!\n- ❄️ **Qor bari:** O'zbekiston tog'larida yashovchi noyob hayvon`;
+      }
+      if (/bug'u|kiyik|jayron/.test(p)) {
+        return `🦌 **Bug'u / Kiyik / Jayron**\n\n- 🦌 **Bug'u:** 100-450 kg, shoxlari har yil yangilanadi\n- 🐃 **Jayron:** O'rta Osiyo cho'llarida yashovchi, 80 km/soat\n- 🦌 **Kiyik:** 30-300 kg, O'zbekiston tog'larida uchraydi\n- 💡 **Qiziqarli fakt:** Jayron O'zbekiston Qizil kitobida`;
+      }
+      return `🌍 **Dunyodagi Hayvonlar Olami**\n\n**🦁 Yirtqichlar:**\nSher, Yo'lbars, Gepard, Leopard, Bo'ri, Tulki, Ayiq\n\n**🐘 Katta sutemizuvchilar:**\nFil, Karkidon, Begemot, Jiraffa, Zebra, Kenguru\n\n**🐟 Dengiz hayvonlari:**\nKit, Delfin, Akula, Ahtapot, Kalamar\n\n**🐦 Qushlar:**\nBurgut, To'ti, Pingvin, Tovus, Boyqush, Oqqush\n\n**🐍 Sudralib yuruvchilar:**\nTimsoh, Ilon, Toshbaqa, Kaltakesak\n\n**🐝 Hasharotlar:**\nAsalari, Kapalak, Chumoli, Chivin\n\n**🐒 Primatlar:**\nGorilla, Shimpanze, Orangutan, Makak\n\n💬 **Istalgan hayvon nomini yozing — to'liq ma'lumot beraman!**\n*Masalan: "Jiraffa haqida", "Akula necha yil yashaydi", "Gepard tezligi"*`;
     }
 
     if (/david raya|raya/.test(p)) {
@@ -689,26 +761,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // B. HAYVONLAR (Animals Knowledge Engine)
-    if (/hayvon|qo'y|qoy|fil|sher|ot|mushuk|it|ayiq|bo'ri|bori|tulki|tovuq|qush|baliq|yashaydi/.test(p)) {
-      if (/qo'y|qoy/.test(p)) {
-        return `🐾 **Qo'y (Chorvachilik Hayvoni)**\n\n- ⏳ **Umri:** Qo'ylar o'rtacha **10 yildan 12 yilgacha** (ba'zan 15 yilgacha) yashaydi.\n- 🌿 **Oziqlanishi:** O'txur kavsh qaytaruvchi hayvon.\n- 👕 **Faydasi:** Go'sht, jun va sut beradi.\n- 💡 8000 yil ilgari xonakilashtirilgan.`;
-      }
-      if (/fil/.test(p)) {
-        return `🐘 **Fil (Dunyoning Eng Katta Quruqlik Hayvoni)**\n\n- ⏳ **Umri:** 60 - 70 yil yashaydi.\n- ⚖️ **Vazni:** 4,000 - 7,000 kg.\n- 🧠 Xotirasi nihoyatda kuchli hayvon.`;
-      }
-      if (/sher|aslon/.test(p)) {
-        return `🦁 **Sher (Hayvonlar Qiroli)**\n\n- ⏳ **Umri:** Tabiatda 10-15 yil.\n- 🥩 Yirtqich sutemizuvchi, Afrika va Hindistonda yashaydi.\n- 🐾 To'da (prayd) bo'lib ov qiladi.`;
-      }
-      if (/ot|otlar/.test(p)) {
-        return `🐎 **Ot (Chorvachilik va Minish Hayvoni)**\n\n- ⏳ **Umri:** 25 - 30 yil yashaydi.\n- ⚡ Tezgina yuguradi, insonning eng yaqin do'stlaridan biri.`;
-      }
-      if (/it|kuchuk/.test(p)) {
-        return `🐶 **It (Insonning Sadoqatli Do'sti)**\n\n- ⏳ **Umri:** 10 - 15 yil yashaydi.\n- 👂 Hidi va eshitish qobiliyati insondan 10,000 marta kuchli.`;
-      }
-      if (/mushuk/.test(p)) {
-        return `🐱 **Mushuk**\n\n- ⏳ **Umri:** 12 - 18 yil yashaydi.\n- 👁️ Qorong'ida juda yaxshi ko'radi.`;
-      }
-      return `🐾 **Hayvonot Olam:**\n\n- 🐘 **Fil:** 60-70 yil yashaydi\n- 🐑 **Qo'y:** 10-12 yil yashaydi\n- 🦁 **Sher:** Hayvonlar qiroli (12-15 yil)\n- 🐎 **Ot:** 25-30 yil yashaydi\n- 🐶 **It:** 10-15 yil yashaydi\n\nIstalgan hayvon nomini yuboring!`;
+    if (/hayvon|qo'y|qoy|fil|sher|ot|mushuk|it|ayiq|bo'ri|bori|tulki|tovuq|qush|baliq|yashaydi|kenguru|zebra|jiraffa|timsoh|ilon|toshbaqa|maymun|panda|quyon|kalamush|sichqon|asalari|kapalak|bars|gepard|bug'u|kiyik|jayron|akula|kit|delfin|burgut|pingvin/.test(p)) {
+      return `🌍 **Hayvonot Olami:**\n\n🦁 **Yirtqichlar:** Sher, Yo'lbars, Bo'ri, Tulki, Ayiq\n🐘 **Kattalar:** Fil, Jiraffa, Zebra, Kenguru\n🐟 **Dengiz:** Kit, Delfin, Akula\n🦅 **Qushlar:** Burgut, To'ti, Pingvin\n🐍 **Sudraluvchilar:** Timsoh, Ilon, Toshbaqa\n🐝 **Hasharotlar:** Asalari, Kapalak\n\n💬 *Istalgan hayvon nomini yozing!*`;
     }
 
     // C. KULUB va KLUB LARI (Arsenal, Real Madrid, Barca...)
@@ -951,6 +1005,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==============================================================
   // MAIN CONTROLLER
   // ==============================================================
+
+  // Til bo'yicha AI system prompt
+  function getLangSystemPrompt() {
+    if (currentLanguage === 'ru-RU') return 'Отвечай ТОЛЬКО на русском языке. Будь дружелюбным и понятным.';
+    if (currentLanguage === 'en-US') return 'Answer ONLY in English. Be friendly and clear.';
+    return "Faqat O'zbek tilida javob ber. Do'stona va tushunarli bo'l.";
+  }
+
   async function generateUniversalAIResponse(prompt) {
     // 0. Mantiqiy masala (topishmoq)
     const logicResult = checkLogicalPuzzle(prompt);
@@ -960,34 +1022,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const convResult = checkConversation(prompt);
     if (convResult) return convResult;
 
-    // 0c. Kod yordami (IntelliJ IDEA, Python, Java, JS...)
+    // 0c. Kod yordami
     const codeResult = checkCodingHelp(prompt);
     if (codeResult) return codeResult;
-    // 1. Math calculation check
+
+    // 1. Math
     const mathResult = trySolveMath(prompt);
     if (mathResult) return mathResult;
 
-    // 2. Check Identity or Greeting ("sen kimsan", "o'zing haqida ma'lumot ber")
+    // 2. Identity
     const identityResult = checkIdentityOrGreeting(prompt);
     if (identityResult) return identityResult;
 
-    // 3. Check Multi-Language Translation (barcha 4 yo'nalish: uz↔en, uz↔ru)
+    // 3. Tarjima
     const translationResult = await checkTranslationQuery(prompt);
     if (translationResult) return translationResult;
 
-    // 4. Check Built-in Sports, Animals, Clubs & Players ("tenis haqida", "hayvonlar", etc.)
+    // 4. Sport, Hayvonlar
     const builtInResult = checkBuiltInSportsAndEntities(prompt);
     if (builtInResult) return builtInResult;
 
-    // 5. Wikipedia FREE Real Knowledge / AI Engine
+    // 5. Wikipedia + AI (tanlangan tilda)
     setAIState('processing');
-    const liveAnswer = await fetchAIResponse(prompt);
-    if (liveAnswer && liveAnswer.length > 10) {
-      return liveAnswer;
-    }
+    const liveAnswer = await fetchAIResponseWithLang(prompt);
+    if (liveAnswer && liveAnswer.length > 10) return liveAnswer;
 
-    // 6. Smart Offline Knowledge Engine fallback
+    // 6. Offline fallback
     return getSmartOfflineResponse(prompt);
+  }
+
+  // Tanlangan tilda AI javob olish
+  async function fetchAIResponseWithLang(userPrompt) {
+    // Wikipedia dan avval
+    const wikiResult = await fetchWikipediaSummary(userPrompt);
+    if (wikiResult) return wikiResult;
+
+    // Pollinations AI — tanlangan til bilan
+    try {
+      const sysPrompt = getLangSystemPrompt();
+      const url = `https://text.pollinations.ai/${encodeURIComponent(userPrompt)}?system=${encodeURIComponent(sysPrompt)}&seed=42`;
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 7000);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.trim().length > 5 && !text.includes('402')) return text.trim();
+      }
+    } catch (e) {}
+    return null;
+  }
   }
 
   // ==============================================================
@@ -1251,15 +1335,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
 
+  if (langUzBtn) langUzBtn.addEventListener('click', () => {
+    currentLanguage = 'uz-UZ';
+    langUzBtn.classList.add('active');
+    langEnBtn?.classList.remove('active');
+    langRuBtn?.classList.remove('active');
+    if (recognition) recognition.lang = 'uz-UZ';
+  });
   if (langEnBtn) langEnBtn.addEventListener('click', () => {
     currentLanguage = 'en-US';
     langEnBtn.classList.add('active');
+    langUzBtn?.classList.remove('active');
     langRuBtn?.classList.remove('active');
     if (recognition) recognition.lang = 'en-US';
   });
   if (langRuBtn) langRuBtn.addEventListener('click', () => {
     currentLanguage = 'ru-RU';
     langRuBtn.classList.add('active');
+    langUzBtn?.classList.remove('active');
     langEnBtn?.classList.remove('active');
     if (recognition) recognition.lang = 'ru-RU';
   });
