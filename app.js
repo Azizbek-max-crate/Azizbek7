@@ -335,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper: Identity & Greeting check
   function checkIdentityOrGreeting(promptText) {
     const p = promptText.toLowerCase().trim();
-    if (/sen kim|kim san|kim siz|o'zing|ozing|jarvis|qalaysiz|qalaysan|salom|assalom|kim bu/i.test(p) ||
-        /o'zing haqida|ozing haqida|sen kimsan|kim kimsan|sen kimsiz/i.test(p)) {
+    if (/sen kim|kim san|kim siz|o'zing|ozing|jarvis|salom|assalom|kim bu/i.test(p) ||
+        /sen kimsan|kim kimsan|sen kimsiz/i.test(p)) {
       return `🤖 **Men JARVIS AI — Sizning Intellektual Ovozli Yordamchingizman!**\n\nMen dunyodagi barcha bilimlarga ega AI yordamchisiman:\n- ⚽ **Sport va Klublar:** Arsenal, Real Madrid, Barcelona, Man City va barcha jamoalar\n- 🥊 **Boks va UFC:** Bakhodir Jalolov, Mike Tyson, Khabib va barcha sportchilar\n- 🐾 **Hayvonlar:** Qo'y, fil, sher, ot va barcha hayvonlarning yashash yillari va xususiyatlari\n- 🔤 **Tarjima:** Inglizcha, o'zbekcha, ruscha va barcha tillardan UZUN GAPLARNI tarjima qilish\n- 🧮 **Matematika:** Har qanday misollar va masalalar\n\nIstalgan savolingizni bering!`;
     }
     return null;
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (/futbol|football|soccer/.test(p) && !/david raya|raya|mbappe|messi|ronaldo|arsenal|real madrid|barcelona/.test(p)) {
-      return `⚽ **Futbol Sport Turi va Chempionatlar**\n\nFutbol — dunyodagi №1 eng ommabop va sevimli jamoaviy sport turi!\n\n🏆 **Top 5 Chempionatlar va Klublar:**\n- 🇪🇸 **La Liga (Ispaniya):** Real Madrid, FC Barcelona, Atletico Madrid\n- 🇬🇧 **Premier League (Angliya):** Arsenal, Manchester City, Liverpool, Manchester United, Chelsea\n- 🇩🇪 **Bundesliga (Germaniya):** Bayern Munich, Borussia Dortmund\n- 🇮🇹 **Serie A (Italiya):** Juventus, Inter Milan, AC Milan\n- 🇫🇷 **Ligue 1 (Fransiya):** Paris Saint-Germain (PSG)\n\n🌟 **Top O'yinchilar:** Lionel Messi, Cristiano Ronaldo, Kylian Mbappé, Erling Haaland, Jude Bellingham, David Raya (Arsenal).`;
+      return `⚽ **Futbol Sport Turi va Chempionatlar**\n\nFutbol — dunyodagi №1 eng ommabop va sevimli jamoaviy sport turi!\n\n🏆 **Top 5 Chempionatlar va Klublar:**\n- 🇪🇸 **La Liga (Ispaniya):** Real Madrid, FC Barcelona, Atletico Madrid\n- 🇬🇧 **Premier League (Angliya):** Arsenal, Manchester City, Liverpool, Manchester United, Chelsea\n- 🇩🇪 **Bundesliga (Germaniya):** Bayern Munich, Borussia Dortmund\n- 🇮🇹 **Serie A (Italiya):** Juventus, Inter Milan, AC Milan\n- 🇫🇷 **Ligue 1 (Fransiya):** Paris Saint-Germain (PSG)\n\n🌟 **Top O'yinchilar:** Lionel Messi, Cristiano Ronaldo, Kylian Mbappé, Erling Haaland, Jude Bellingham, Bukayo Saka , Pedri.`;
     }
 
     if (/boks|boxing/.test(p) && !/jalolov|hasanboy|tyson|ali|fury|usyk|canelo/.test(p)) {
@@ -512,14 +512,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (/tovuq/.test(p)) return `🐔 **Tovuq**\n\n- ⏳ **Umri:** 5-10 yil\n- 🥚 **Tuxum:** Yiliga 250-300 ta tuxum qo'yadi\n- 💡 **Qiziqarli fakt:** Dunyoda 33 milliard tovuq bor`;
       if (/kenguru/.test(p)) return `🦘 **Kenguru**\n\n- ⏳ **Umri:** 6-8 yil\n- 🌍 **Yashash joyi:** Avstraliya\n- 🏃 **Tezligi:** 70 km/soat, 9 m uzunlikda sakraydi\n- 💡 **Qiziqarli fakt:** Orqaga yura olmaydi`;
       if (/zebra/.test(p)) return `🦓 **Zebra**\n\n- ⏳ **Umri:** 20-25 yil\n- 🌍 **Yashash joyi:** Afrika\n- 🏃 **Tezligi:** 65 km/soat\n- 💡 **Qiziqarli fakt:** Aslida qora teriga oq yo'llar`;
-      if (/jiraff|jiraffa|zirafa/.test(p)) return `🦒 **Jiraffa**\n\n- ⏳ **Umri:** 20-25 yil\n- 📏 **Bo'yi:** 5-6 metr (eng baland quruqlik hayvoni)\n- ⚖️ **Vazni:** 800-1200 kg\n- 💡 **Qiziqarli fakt:** Bo'yni 1.8 m bo'lsa ham, umurtqa soni insonnikidek — 7 ta`;
+      if (/jiraff|jirafa|zirafa/.test(p)) return `🦒 **Jiraffa**\n\n- ⏳ **Umri:** 20-25 yil\n- 📏 **Bo'yi:** 5-6 metr (eng baland quruqlik hayvoni)\n- ⚖️ **Vazni:** 800-1200 kg\n- 💡 **Qiziqarli fakt:** Bo'yni 1.8 m bo'lsa ham, umurtqa soni insonnikidek — 7 ta`;
       if (/timsoh|krokodil/.test(p)) return `🐊 **Timsoh (Krokodil)**\n\n- ⏳ **Umri:** 70-100 yil\n- ⚖️ **Vazni:** 400-1000 kg\n- 💡 **Qiziqarli fakt:** 200 million yildan beri o'zgarmagan`;
       if (/ilon/.test(p)) return `🐍 **Ilon**\n\n- ⏳ **Umri:** 10-30 yil\n- 💡 **Qiziqarli fakt:** Qulog'i yo'q, titrashni sezadi. 600+ tur zaharli, 2400+ tur zararsiz`;
       if (/toshbaqa/.test(p)) return `🐢 **Toshbaqa**\n\n- ⏳ **Umri:** 80-150 yil (ba'zilari 250 yil!)\n- 💡 **Qiziqarli fakt:** Harriet ismli toshbaqa 175 yil yashagan (1830-2006)`;
       if (/maymun|gorilla|shimpanze/.test(p)) return `🦍 **Maymunlar**\n\n- 🦍 **Gorilla:** Eng kuchli primat, 200 kg, DNK 98.3% insonnikidek\n- 🐒 **Shimpanze:** Eng aqlli, asbob ishlatadi, DNK 98.7% insonnikidek\n- 🦧 **Orangutan:** "O'rmon odami" — daraxtda yashaydi, 30 yil`;
       if (/panda/.test(p)) return `🐼 **Panda**\n\n- ⏳ **Umri:** 15-20 yil\n- 🌍 **Yashash joyi:** Xitoy (Sichuan tog'lari)\n- 🎋 **Ovqati:** Kuniga 12-38 kg bambuk yeydi\n- 💡 **Qiziqarli fakt:** Dunyo bo'yicha faqat 1,800 ta qolgan`;
       if (/akula/.test(p)) return `🦈 **Akula**\n\n- ⏳ **Umri:** 20-30 yil (ba'zilari 70 yil)\n- 🏊 **Tezligi:** 70 km/soat\n- 💡 **Qiziqarli fakt:** Akula 400 million yildan beri yashaydi`;
-      if (/kit/.test(p)) return `🐋 **Kit**\n\n- ⏳ **Umri:** 80-90 yil (ba'zilari 200 yil)\n- 📏 **Uzunligi:** 30 metr\n- ⚖️ **Vazni:** 150 tonna (Ko'k kit — eng og'ir hayvon)`;
+      if (/ko'k kit/.test(p)) return `🐋 **ko'k Kit**\n\n- ⏳ **Umri:** 80-90 yil (ba'zilari 200 yil)\n- 📏 **Uzunligi:** 30 metr\n- ⚖️ **Vazni:** 150 tonna (Ko'k kit — eng og'ir hayvon)`;
       if (/delfin/.test(p)) return `🐬 **Delfin**\n\n- ⏳ **Umri:** 20-30 yil\n- 🧠 **Aqli:** Insondan keyin eng aqlli hayvon\n- 🏊 **Tezligi:** 60 km/soat\n- 💡 **Qiziqarli fakt:** Har bir delfin o'z nomi bor`;
       if (/burgut|lochin/.test(p)) return `🦅 **Burgut**\n\n- ⏳ **Umri:** 20-30 yil\n- 👁️ **Ko'rishi:** 3-4 km uzoqlikdan o'ljani ko'radi\n- 🏃 **Tezligi:** Sho'ng'iganda 240 km/soat`;
       if (/to'ti/.test(p)) return `🦜 **To'ti**\n\n- ⏳ **Umri:** 60-80 yil (ba'zi turlari)\n- 🗣️ **Gapirishsi:** 50-100 so'z eslab qoladi\n- 🧠 **Aqli:** 5 yoshli bolaga teng`;
@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (/arsenal/.test(p)) {
-      return `⚽ **Arsenal F.C. (Angliya, London)**\n\n- 🏆 **Premier League:** 13 marta g'olib\n- 🏆 **FA Cup:** 14 marta g'olib (rekord!)\n- 🏟️ **Stadion:** Emirates Stadium (London)\n- 👤 **Bosh Murabbiy:** Mikel Arteta\n- 🥅 **Asosiy Darvozabon:** David Raya\n- 🔴 Laqabi: *"The Gunners"* ("To'pchilar")`;
+      return `⚽ **Arsenal Football Club — Angliyaning London shahri (shimoliy qismi)da joylashgan, \n dunyoning eng mashhur va boy tarixga ega professional futbol klublaridan biri. \n Klubga 1886-yilda asos solingan.\n- 🏆 **Premier League:** 13 marta g'olib\n- 🏆 **FA Cup:** 14 marta g'olib (rekord!)\n- 🏟️ **Stadion:** Emirates Stadium (London)\n- 👤 **Bosh Murabbiy:** Mikel Arteta\n- 🥅 **Asosiy Darvozabon:** David Raya\n- 🔴 Laqabi: *"The Gunners"* ("To'pchilar")`;
     }
 
     return null;
@@ -634,14 +634,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return `😄 **Zerikibsiz? Yordamlashaman!**\n\nQuyidagilardan birini sinab ko'ring:\n- 🏀 *"Basketbol haqida ma'lumot ber"* — qiziqarli faktlar\n- 🧠 *"Mantiqiy topshiriq ber"* — miyangizni ishga soling\n- 🌍 *"Qiziq faktlar"* — dunyoning sirli tomonlari\n- ⚽ *"Real Madrid haqida"* — futbol suhbati\n- 💻 *"Python kod yozishni o'rgat"* — yangi ko'nikma`;
     }
 
-    if (/rahmat|tashakkur|sog' bo'ling|xayr|ko'rishguncha|alvido/.test(p)) {
+    if (/sog' bo'ling|xayr|ko'rishguncha|alvido/.test(p)) {
       if (/xayr|alvido|ko'rishguncha|sog' bo'ling/.test(p)) {
         return `👋 **Xayr! Ko'rishguncha!**\n\nIstalgan vaqt qaytib keling — men doim shu yerdaman! 😊\nSizga omad va yaxshi kun tilayman! ☀️`;
       }
       return `😊 **Iltimos, muammo emas!**\n\nYordam bera olganimdan xursandman. Yana savollaringiz bo'lsa, bemalol so'rang! 🤝`;
     }
 
-    if (/ism|o'zing haqida|o'zing kim|jarvis nima|sen nima/.test(p) && !/kim siz|kim san/.test(p)) {
+    if (/ism|o'zing haqingda|o'zing kim|jarvis nima|sen nima/.test(p) && !/kim siz|kim san/.test(p)) {
       return `🤖 **Men haqimda:**\n\nMen **JARVIS AI** — sizning aqlli ovozli yordamchingizman! 🌟\n\n**Nima bilaman:**\n- 🏀 Sport (Futbol, Basketbol, Boks, Tennis)\n- 🌍 Jahon bilimlari (tarix, geografiya, fan)\n- 🔤 Tarjima (Ruscha, Inglizcha ↔ O'zbekcha)\n- 💻 Kod yozish (Python, Java, JavaScript, HTML)\n- 🧮 Matematik va mantiqiy masalalar\n- 💬 Suhbat va muloqot\n\n**Mening maqsadim** — sizga har qanday savolda yordam berish! 😊`;
     }
 
