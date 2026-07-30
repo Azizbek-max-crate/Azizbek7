@@ -233,12 +233,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // Voices yangilash
+      if (!cachedVoices.length && window.speechSynthesis) {
+        cachedVoices = window.speechSynthesis.getVoices();
+      }
+
       // Tanlangan tilga mos ovoz topish
       let selectedVoice = null;
       if (currentLanguage === 'ru-RU') {
         selectedVoice = cachedVoices.find(v => v.lang.startsWith('ru')) || null;
         utterance.lang = 'ru-RU';
-      } else if (currentLanguage === 'en-US') {
+      } else {
         selectedVoice = cachedVoices.find(v => v.lang.startsWith('en-US')) ||
                         cachedVoices.find(v => v.lang.startsWith('en')) || null;
         utterance.lang = 'en-US';
@@ -1003,36 +1008,59 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==============================================================
-  // MAIN CONTROLLER
+  // TIL TIZIMI — tanlangan tilda yozish, gapirish, mikrofon
   // ==============================================================
 
-  // Til bo'yicha AI system prompt
+  // Tanlangan til uchun AI system prompt
   function getLangSystemPrompt() {
-    if (currentLanguage === 'ru-RU') return 'Отвечай ТОЛЬКО на русском языке. Будь дружелюбным и понятным.';
-    if (currentLanguage === 'en-US') return 'Answer ONLY in English. Be friendly and clear.';
-    return "Faqat O'zbek tilida javob ber. Do'stona va tushunarli bo'l.";
+    if (currentLanguage === 'ru-RU') return 'Отвечай ТОЛЬКО на русском языке. Будь дружелюбным, чётким и понятным.';
+    if (currentLanguage === 'en-US') return 'Answer ONLY in English. Be friendly, clear and helpful.';
+    return "Faqat O'zbek tilida javob ber. Do'stona, aniq va tushunarli bo'l.";
   }
 
+  // Javobni tanlangan tilga o'girish (built-in javoblar uchun)
+  async function translateResponseIfNeeded(text) {
+    if (currentLanguage === 'uz-UZ') return text; // o'zbek — o'zgarishsiz
+    const toLang = currentLanguage === 'ru-RU' ? 'ru' : 'en';
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0, 500))}&langpair=uz|${toLang}`;
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.responseStatus === 200 && data?.responseData?.translatedText) {
+          return data.responseData.translatedText;
+        }
+      }
+    } catch (e) {}
+    return text; // tarjima bo'lmasa — original
+  }
+
+  // ==============================================================
+  // MAIN CONTROLLER
+  // ==============================================================
   async function generateUniversalAIResponse(prompt) {
-    // 0. Mantiqiy masala (topishmoq)
+    // 0. Mantiqiy masala
     const logicResult = checkLogicalPuzzle(prompt);
-    if (logicResult) return logicResult;
+    if (logicResult) return await translateResponseIfNeeded(logicResult);
 
     // 0b. Muloqot / Suhbat
     const convResult = checkConversation(prompt);
-    if (convResult) return convResult;
+    if (convResult) return await translateResponseIfNeeded(convResult);
 
     // 0c. Kod yordami
     const codeResult = checkCodingHelp(prompt);
-    if (codeResult) return codeResult;
+    if (codeResult) return codeResult; // kod tarjima qilinmaydi
 
     // 1. Math
     const mathResult = trySolveMath(prompt);
-    if (mathResult) return mathResult;
+    if (mathResult) return mathResult; // raqamlar o'zgarmaydi
 
     // 2. Identity
     const identityResult = checkIdentityOrGreeting(prompt);
-    if (identityResult) return identityResult;
+    if (identityResult) return await translateResponseIfNeeded(identityResult);
 
     // 3. Tarjima
     const translationResult = await checkTranslationQuery(prompt);
@@ -1040,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Sport, Hayvonlar
     const builtInResult = checkBuiltInSportsAndEntities(prompt);
-    if (builtInResult) return builtInResult;
+    if (builtInResult) return await translateResponseIfNeeded(builtInResult);
 
     // 5. Wikipedia + AI (tanlangan tilda)
     setAIState('processing');
@@ -1048,7 +1076,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (liveAnswer && liveAnswer.length > 10) return liveAnswer;
 
     // 6. Offline fallback
-    return getSmartOfflineResponse(prompt);
+    const offlineResult = getSmartOfflineResponse(prompt);
+    return await translateResponseIfNeeded(offlineResult);
   }
 
   // Tanlangan tilda AI javob olish
@@ -1071,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
     return null;
-  }
   }
 
   // ==============================================================
